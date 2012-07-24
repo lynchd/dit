@@ -1,0 +1,66 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{float}
+\floatstyle{boxed} 
+\restylefloat{figure}
+\renewcommand*\familydefault{\sfdefault}
+\title{Digital Computers and Number Systems}
+\author{David Lynch}
+\date{June 2012}
+\begin{document}
+\maketitle
+\begin{abstract}
+This article serves as a gentle introduction to digital computers and number systems. Some of you may have covered a lot of this territory already, but it's worth revisiting to illustrate the absolute fundamentals, if only to get warmed up for some of the more advanced material we will be covering later. 
+\end{abstract}
+\section{Digital Computers}
+\subsection{Definition}
+At it's most fundamental level, a digital computer facilitates the execution of a sequence of manipulations on inputs, typically, though not always, producing outputs. Physically, the most discreet element of data is a physical quantity called a {\bf signal}. Digital systems will use two discreet values, namely 1 and 0. More often, signals are referred to {\bf bits}. All data in a computer system can be represented as some structured collection of bits. 
+\subsection{The Von Neumann Architecture}
+John Von Neumann is credited with a laying the groundwork for modern digital computer systems design. Identifiable remnants of his classification of computers into logical units still permeate modern computer systems architectures. In his configuration, computers were apportioned into {\bf memory, central-processing unit and input/output}. Each of these sub-systems is connected by a series of connections known as a {\bf bus}. In the simple design there are three types of bus. The {\bf control bus} is responsible for the transmission of {\bf command data} between the CPU, memory and I/O. Functions such as chip selection, initialization and other forms of control are conducted on this bus. The {\bf data bus} is responsible for the transfer of data between logical units. A separate bus known as the {\bf address bus} is responsible for determining locations for the transfer of data over the data-bus. 
+
+\begin{figure}
+\caption{The Von Neumann Architecture \cite{IMGVON}}
+\begin{center}
+\includegraphics[scale=0.35]{../images/von-neumann.png}
+\end{center}
+\end{figure}
+
+The following example illustrates how a simple Von-Neumann computer may execute a simple memory write. 
+\begin{itemize}
+	\item The CPU produces a data output that needs to be stored to memory. 
+	\item The CPU will activate the memory component by means of the control bus. 
+	\item The CPU will place target memory location on the address bus. 
+	\item The CPU will place the data to be written on the data bus. 
+\end{itemize} 
+
+
+
+\subsubsection{Central Processing Unit}
+Commonly known as the CPU, this is the core of the system. The CPU is responsible for the loading and execution of programs, the retrieval and storage of data as well as interaction with external devices. There are two further subdivisions of the CPU which we will consider here. The data path is responsible for the processing of input data and the generation of output data. This includes arithmetic processing (e.g. addition, multiplication) and logical transform (e.g. logical AND, shifting). The {\bf control path} (or unit) is the part of the CPU responsible for supervision and control of data flow between all units in the system. This includes transfer and write-back to memory and provision of inputs and retrieval of outputs from the data path. 
+\newline
+\newline
+The Central Processing Unit can be further divided into units of logical responsibility. In particular, the ALU or Arithmetical and Logical Unit is responsible for the application of fixed precision integer arithmetic and logical operations to the data path. The MMU, or Memory Management Unit is responsible for the management of memory, including memory interaction. In doing so, the MMU provides the CPU with a unified virtual address space. This abstraction allows the CPU to address multiple components, and provides mechanisms for the efficient interaction with these devices.  Lastly, the FPU, or floating point unit is responsible for the execution of floating precision arithmetic. The FPU is a complex unit, which has its own control unit and data path. 
+\subsubsection{Memory}
+Storage of data is facilitated by memory. There are various forms, differing in characteristics such as {\it durability, access time and capacity} but in general, Memory is a section of the computer where we can store collections of bits. In terms of the Von Neumann architecture, we refer to Main Memory. In computer systems, this is typically RAM or Random Access Memory. More on this later. 
+\subsubsection{I/O Devices}
+Input and output devices are concerned about how data moves between logical layers external to the CPU and Main Memory. This could mean interaction with an end user by means of a keyboard, or loading of a file into main memory from DVD-ROM or Hard Disk, or even downloading data from the internet via a Network Interface Card (NIC).
+\subsubsection{Ancillary Units}
+Not really I/O devices and not really a Unit of the Von Neumann architecture, and often digital computers in themselves, ancillary units are an emerging class of component that support the wider computer system by taking responsibility for some specialist function. The primary example is a Graphics Processing Unit (GPU), which in most modern systems is responsible for the efficient provision of computer graphics. Units such as the GPU may directly interact with I/O sub-systems and memory, as well as use specialist data paths custom built for function. In our GPU example, the CPU is typically freed from expensive and constant vector-arithmetic calculations, allowing it to focus on the more general tasks of program control, management and execution. Another example is Cache Memory, which aims to reduce the amount of time a CPU must wait on data to be transferred from Main Memory or an I/O Device.
+\newline
+\newline
+The emergence of ancillary units were at least partially driven to overcome an inefficiency known as {\bf Von-Neumann Bottleneck}. In the illustrated configuration above, the CPU constantly has to read program from memory, while also executing transforms on data. As a result the CPU is quite often waiting around for data to be transferred from memory. This limits the maximum throughput of the CPU. 
+
+\section{Number Systems}
+\subsection{Decimal Number System}
+\subsection{Other Number Systems}
+\subsection{Naming Systems}
+\subsection{Ranges}
+\subsection{Arithmetic and Conversion}
+\subsection{Encoding}
+\bibliography{../biblio/techfundamentals.bib}{}
+\bibliographystyle{plain}
+\end{document}
