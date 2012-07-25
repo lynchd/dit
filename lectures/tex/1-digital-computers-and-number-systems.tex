@@ -5,16 +5,18 @@
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \floatstyle{boxed} 
 \restylefloat{figure}
 \renewcommand*\familydefault{\sfdefault}
-\title{Digital Computers and Number Systems}
+\title{The Absolute Fundamentals of Digital Computers}
 \author{David Lynch}
 \date{June 2012}
 \begin{document}
 \maketitle
 \begin{abstract}
-This article serves as a gentle introduction to digital computers and number systems. Some of you may have covered a lot of this territory already, but it's worth revisiting to illustrate the absolute fundamentals, if only to get warmed up for some of the more advanced material we will be covering later. 
+This article serves as a gentle introduction to digital computers. Some of you may have covered a lot of this territory already, but it's worth revisiting to illustrate the bare essentials. We will dig in further to some of the topics that are covered here, in particular the areas of memory management and the execution of programs, but for now we will treat the digital computer system at a fairly high level of detail. 
 \end{abstract}
 \section{Digital Computers}
 \subsection{Definition}
@@ -36,9 +38,6 @@ The following example illustrates how a simple Von-Neumann computer may execute 
 	\item The CPU will place target memory location on the address bus. 
 	\item The CPU will place the data to be written on the data bus. 
 \end{itemize} 
-
-
-
 \subsubsection{Central Processing Unit}
 Commonly known as the CPU, this is the core of the system. The CPU is responsible for the loading and execution of programs, the retrieval and storage of data as well as interaction with external devices. There are two further subdivisions of the CPU which we will consider here. The data path is responsible for the processing of input data and the generation of output data. This includes arithmetic processing (e.g. addition, multiplication) and logical transform (e.g. logical AND, shifting). The {\bf control path} (or unit) is the part of the CPU responsible for supervision and control of data flow between all units in the system. This includes transfer and write-back to memory and provision of inputs and retrieval of outputs from the data path. 
 \newline
@@ -55,9 +54,26 @@ Not really I/O devices and not really a Unit of the Von Neumann architecture, an
 The emergence of ancillary units were at least partially driven to overcome an inefficiency known as {\bf Von-Neumann Bottleneck}. In the illustrated configuration above, the CPU constantly has to read program from memory, while also executing transforms on data. As a result the CPU is quite often waiting around for data to be transferred from memory. This limits the maximum throughput of the CPU. 
 
 \section{Number Systems}
+Your maths lecturer will cover number systems in much more detail. Here, I am to introduce the concepts that I will be taken as given for the remainder of the course. When programming computer systems, and understanding of how arithmetic is conducted in digital computers is imperative. What is covered here is the absolute minimum you will need to know to properly tackle some programming problems we will look at later.  
 \subsection{Decimal Number System}
-\subsection{Other Number Systems}
-\subsection{Naming Systems}
+All of you are familiar with decimal number systems from primary school. More formally put than counting with your fingers, the decimal number system is represented by strings of digits that are raised to a power of 10 relative to their position in the sequence. The common decimal number system is therefore of {\bf base} or {\bf radix} 10. Each element of the sequence is known as a {\bf coefficient.} 
+
+\begin{center}
+$C_{n} C_{n-1} C_{n-2}...C_{1} C_{0}.C_{-1} C_{-2}...C_{-m+1} C_{-m}$
+\end{center}
+Represents a number system where $n \in \mathbb{I}_{\geq0}, m \in \mathbb{I}_{\geq1}$ and $C \in A$ where $A$ represents the set of possible coefficients in the number system. For the decimal number system $C \in A$ where $A = \{0,1,2,3,4,5,6,7,8,9\}$
+\newline\newline
+The {\it radix point} - in this case the decimal point - demarcates the transition from positive to negative powers. For example the decimal number 956.75 is expanded as 
+$9\times10^2 + 5\times10^1 + 6\times10^0 + 7\times10-^1 + 5\times10-^2$
+\newline\newline
+The digits at positions $n$ and $m$ in the sequence are known as the {\bf most significant} and {\bf least significant} digits respectively. 
+\subsection{Power of 2 Based Systems}
+In the previous section, we discussed the most fundamental element of computer data, the signal. Since a signal can be in one of two states - on, or off - number systems with bases that are powers of two prove to be quite useful. The {\bf binary} number system is the most fundamental of these, with a set of coefficients $A = \{0,1\}$. The restricted size of the coefficient set actually makes binary strings intolerably long for significant cases in which humans must read them. The {\bf octal} - $A= \{[0 - 7]\}$ - and {\bf hexadecimal} - $A = \{[0-9][A-F]\}$ - number systems assist us here. The following shows the decimal number 31 represented in all three number systems. 
+\begin{center}
+$(31)_{10} = (1F)_{16} = (37)_8 = (11111)_2$
+\end{center} 
+\subsubsection{Bit Sequence Sizes}
+In understanding capacity to store bits, various methods of grouping size of the sequence together have been devised. One strategy is to raise the number of bits to a factor of 10. In doing this we become familiar with the terms Kilo-, Mega- and Giga-bits which are $2^{10} 2^{20}$ and $2^{30}$ bits respectively.  Another strategy is to group into {\bf bytes} - 8 bits - {\bf words} - 16-bits - or {\bf long words} - 32-bits. These two strategies can also be combined. For example, 1 kilo-byte is 1024 bytes or 1048576 bits. These terms are frequently uses when referring to the capacity of a computer system to store items in memory. 
 \subsection{Ranges}
 \subsection{Arithmetic and Conversion}
 \subsection{Encoding}
