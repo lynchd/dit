@@ -7,12 +7,13 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
 \floatstyle{boxed} 
 \restylefloat{figure}
 \renewcommand*\familydefault{\sfdefault}
-\title{The Absolute Fundamentals of Digital Computers}
+\title{Digital Computers and Number Systems}
 \author{David Lynch}
-\date{June 2012}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -67,16 +68,52 @@ The {\it radix point} - in this case the decimal point - demarcates the transiti
 $9\times10^2 + 5\times10^1 + 6\times10^0 + 7\times10-^1 + 5\times10-^2$
 \newline\newline
 The digits at positions $n$ and $m$ in the sequence are known as the {\bf most significant} and {\bf least significant} digits respectively. 
-\subsection{Power of 2 Based Systems}
+\subsection{Power-of-2 Based Systems}
 In the previous section, we discussed the most fundamental element of computer data, the signal. Since a signal can be in one of two states - on, or off - number systems with bases that are powers of two prove to be quite useful. The {\bf binary} number system is the most fundamental of these, with a set of coefficients $A = \{0,1\}$. The restricted size of the coefficient set actually makes binary strings intolerably long for significant cases in which humans must read them. The {\bf octal} - $A= \{[0 - 7]\}$ - and {\bf hexadecimal} - $A = \{[0-9][A-F]\}$ - number systems assist us here. The following shows the decimal number 31 represented in all three number systems. 
 \begin{center}
 $(31)_{10} = (1F)_{16} = (37)_8 = (11111)_2$
 \end{center} 
-\subsubsection{Bit Sequence Sizes}
 In understanding capacity to store bits, various methods of grouping size of the sequence together have been devised. One strategy is to raise the number of bits to a factor of 10. In doing this we become familiar with the terms Kilo-, Mega- and Giga-bits which are $2^{10} 2^{20}$ and $2^{30}$ bits respectively.  Another strategy is to group into {\bf bytes} - 8 bits - {\bf words} - 16-bits - or {\bf long words} - 32-bits. These two strategies can also be combined. For example, 1 kilo-byte is 1024 bytes or 1048576 bits. These terms are frequently uses when referring to the capacity of a computer system to store items in memory. 
 \subsection{Ranges}
-\subsection{Arithmetic and Conversion}
+The range of numbers that are representable by a sequence depend on the size of hardware structures that underly. These structures have fixed sizes which are powers of 2. There are various ways to represent numbers which are stored as sequences of bits. An 8-bit word can represent 255 possible integer values including zero. If the integer is unsigned, it is greater than or equal to zero. In this instance the 8-bit word can represent a maximum of 255 and a minimum of zero. We can also use an 8-bits to store signed integer values. This is done typically in one of two ways. In the two's compliment representation, we can store numbers -127 to 128. To calculate the two's compliment, or negative representation, we take the positive value, invert the bits and add 1. In this encoding -2 is represented by the binary string 11111110. Another approach to negative integer representation is a parity bit. In this representation -2 would be represented as 10000010. The disadvatage of this approach is that we have positive and negative representations of zero, allowing us to represent 254 integers.
+\newline\newline
+The same principle applies to integers represented by 16, 32 or 64 bits. In general the range of numbers representable can be calculated as $0$ to $2^{n} -1$ for unsigned and $-2^{n}/2 + 2$ to $-2^{n}/2 + 1$ for twos compliment unsigned integers where $n$ is the binary string size.    
+\subsection{Conversion}
+Arithmetic rules follow the same basic concepts for all number systems. To convert to a number system with radix $r$, simply divide by the radix and accumulate the remainders from the least to the most significant bits. 
+\begin{table}
+\centering
+\begin{tabular}{ l c r }
+  Addition    & $(58F)_{16} + (E46)_{16}$ & $= (13E5)_{16}$ \\
+  Subtraction & $(0101)_2 -(0010)_2$ & $= (011)_2$ \\
+\end{tabular}
+\caption{Simple arithmetic calculations}
+\end{table}
+\begin{table}
+\centering
+\begin{tabular}{ l c r }
+  $(156)_{10} / 2$ & $=0$ \\
+  $(78)_{10} / 2$ & $=0$  \\
+  $(39)_{10} / 2$ & $=1$  \\  
+  $(19)_{10} / 2$ & $=1$  \\  
+  $(9)_{10} / 2$ & $=1$ \\  
+  $(4)_{10} / 2$ & $=0$ \\  
+  $(2)_{10} / 2$ & $=0$ \\  
+  $(1)_{10} / 2$ & $=1$ \\
+\end{tabular}
+\caption{$156_{10}$ converted to $10011100_{2}$}
+\end{table}
 \subsection{Encoding}
+The representation of numbers, letters and other data is facilitated by means of encoding. Binary encodings symbolise the underlying numbers that may represent particular characters. A common encoding is ASCII, which uses 7-bit words to encode characters. In this encoding, each character requires a maximum of one byte of space to represent. The ASCII word structure represents addresses in the ASCII table. The format $[ccc][rrrr]$ is used to look-up the table, with the most significant 3 bits of the 7 representing the column lookup and the final 4 bits representing the row. Figure {\ref{ascii}} shows the full ASCII table. 
+\begin{figure}
+\caption{The ASCII Table\cite{LOGICDESIGN}}
+\begin{center}
+\includegraphics[scale=0.60]{../images/ascii.png}
+\label{ascii}
+\end{center}
+\end{figure}
 \bibliography{../biblio/techfundamentals.bib}{}
 \bibliographystyle{plain}
+\begin{center}
+{\small \copyright  David Lynch 2012. Do not reproduce with written permission.}
+\end{center}
 \end{document}
