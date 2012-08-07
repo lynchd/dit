@@ -13,7 +13,7 @@
 \restylefloat{figure}
 \renewcommand*\familydefault{\sfdefault}
 \title{Memory, Caching and Program Execution}
-\author{David Lynch}
+\author{David Lynch - david.lynch@raglansoftware.com }
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -47,7 +47,6 @@ A read operation is equivalent to the above except the write input is not activa
 \end{center}
 \end{figure}
 
-\newline\newline
 When the CPU is executing a read or write cycle, especially in this configuration, it will be busy waiting around for the slower memory to complete it's operation. At this point the CPU cannot conduct any transformations. For this reason, computer systems will often contain levels of much faster memory of differing sizes. We will discuss later is this chapter some techniques that assist us in minimizing this overhead. 
 \newline\newline
 At the circuit level, RAM can be \textbf{static} or \textbf{dynamic}. Static RAM uses an array of SR Latches \cite{SRLATCH} coupled with selection logic. Dynamic RAM actually use capacitor arrays which require periodic refresh. Static RAM typically has shorter read/write cycles but consumes more power than DRAM due to the requirement for constant charge. Economically, DRAM is cheaper to produce in larger quantities. SRAM my typically be found in on-chip cache, whereas DRAM is more commonly found in main system memory. 
@@ -67,10 +66,51 @@ The instruction set is the set of machine-language primitives that can be direct
 \end{itemize}
 The transition to less human readable instruction sets occurred in parallel with the rise in popularity of RISC CPUs. A \textbf{reduced instruction set} CPU, as the name suggests, contains a smaller set of instructions. Program optimization, therefore, at the compiler level. In contrast, a \textbf{complex instruction set} CPU contains more complex operations that will be optimized at the hardware level. There is on-going debate as to which approach is the most desirable approach. Processors of the x86 range take the CISC approach, while PowerPC and some ARM processors will take the RISC approach. See \cite{RISC-CISC} for a comprehensive discussion.
 \section{Fetch, Decode and Execute Cycle}
-A \textbf{register} is a temporary storage location inside the CPU. The \textbf{register file} of the CPU will contain several general purpose registers of varying classes. Data registers are designed to contain data that is being operated on. Address registers are designed to contain locations in memory. Special purpose registers compliment the above file. The \textbf{program counter} points to the location in memory of the instruction which is to be next executed. A \textbf{memory data register} is often used as a buffer to memory data as it moves between the CPU and memory. Lastly, the \textbf{instruction register} contains the instruction that has just been fetched from memory.   
+A \textbf{register} is a temporary storage location inside the CPU. The \textbf{register file} of the CPU will contain several general purpose registers of varying classes. Data registers are designed to contain data that is being operated on. Address registers are designed to contain locations in memory. Special purpose registers compliment the above file. The \textbf{program counter} points to the location in memory of the instruction which is to be next executed. A \textbf{memory data register} is often used as a buffer to memory data as it moves between the CPU and memory. Lastly, the \textbf{instruction register} contains the instruction that has just been fetched from memory. The control unit will decode the operation contained in the instruction set, and if necessary fetch data, perform operations and store data back. 
+\newline\newline
+\subsection{Fetch}
+This part of the cycle is responsible for retrieving the next instruction that is pointed to in memory by the PC by executing a read cycle, placing the instruction in the IR. The PC is incremented by 1 after this operation completes, however since some instructions can modify the PC - i.e. jumps or branches - this does not mean that this will be the PC location at the start of the next cycle.   
+\subsection{Decode}
+The control path decodes the instruction in the IR. This involves executing logic that will understand exactly what inputs to apply to the ALU, or which operation needs to be applied to the PC, or perhaps if we need to execute a new cycle. 
+\subsection{Read Effective Address}
+If an instruction is decoded and is found that an operand points to a location in memory where where data must be fetched from, then one or more read cycles is executed to fetch the operands in question. 
+\subsection{Execute}
+The execute phase is responsible for the actual data-transform operation that must take place. Part of the execute cycle includes write back of any results into memory if required. 
+\newline\newline
+Figure \ref{program} shows a subset of a program listing that multiplies some matrices together. It illustrates exactly how instructions in a program map to encodings in memory. To the left of the listing, it can be seen how the assembly language encoding is stored in memory, and eventually in the IR. As an exercise, use the MC68000 reference found at \cite{68KREF} to fully understand how this program is cross compiled and manipulates the ALU. See \cite{LYNCH-68K} for the full listing and some for some introductory understanding. Bonus marks for anybody who can improve this listing to be more concise - there are numerous possibilities. E-mail answers to me at the usual address. 
 
+\begin{figure}
+\caption{A MC68k Assembly Program \cite{LYNCH-68K}}
+\begin{center}
+\includegraphics[scale=0.40]{../images/assembly-program.png}
+\label{program}
+\end{center}
+\end{figure}
 
+\section{Caches}
+There is some possibility that you may never have to work at the level that we have worked at so far in this article. It is still a good exercise to understand the underlying machine, and in the coming years with particular importance placed on multi-core CPU's, some of the above information will come in handy. However, if there is one section of this article that you understand backwards, do extra reading on and put into practice, it should be this!
+\newline\newline 
+Conceptually, a cache is a mechanism of storing data transparently, so that the cost of future retrievals of that same data is much less than the cost of the first retrieval. In essence, the average time to access this data is reduced. There are a multitude of applications of this concept in computer systems, from web caches to disk caches. Here, we will discuss caches as implemented at the CPU level. 
+\newline\newline
+A CPU cache is a layer of memory that sits between main memory and the CPU. It is much smaller than main system memory, but much faster. The aim of the CPU cache is to reduce the average time the CPU spends waiting on an memory access cycle to complete. Cache memory access times are much closer to the CPU clock period than standard memory access, resulting in a compression of the timing cycle length we see in \label{read-write}.
+\subsection{Locality of Reference}
+The \textbf{principle of locality of reference} states that the collection of data locations referenced over a short period of time on a running computer often consists of well reproducible clusters.  More plainly, programs tend to access the same memory locations multiple times over the running time of the program. This is known as \textbf{temporal locality}. Also, if a specific location is referenced at any particular time, it is likely that a nearby memory location will be accessed before the completion of the program. This is known as \textbf{spacial locality.} We can take advantage of temporal locality, moving the contents of frequently accessed locations to the much faster, but smaller CPU cache memory. Similarly, we may move the contents of locations that are nearby to the most frequently accessed locations. 
+\subsection{Structure of CPU Cache}
+CPU cache memory is organised as a collection of \textbf{cache lines.} When full, each line has a copy of the contents of some location in memory. Each line also tracks the address of this location. Since we need to track whether the data is consistent with main memory, a \textbf{dirty bit} is also associated with this cache line. When a CPU addresses a location that is contained in cache memory, we call it a \textbf{cache hit}. Otherwise, we call it a \textbf{cache miss.} Depending on our cache management strategy a cache miss may result in a new cache line entry. Since the cache is of finite size and hugely smaller than main  memory, when each cache line is valid, we must choose to \textbf{evict} an existing line. This is done in accordance with our \textbf{replacement policy.}
+\newline\newline
+This algorithm is likely concerned with predicting which cache entry is least likely to produce a cache hit in the future. A plethora of algorithms exist to do this, one of the simpler is a \textbf{least recently used} approach.\cite{LRUCITE}. A \textbf{write through} cache writes a store operation to memory every time, whereas a write back cache simply mark a line as dirty and write back to memory at some later stage. This is typically upon eviction. Since main memory is visible to numerous entities, not least other processors, caches can quickly become \textbf{stale} with respect to main memory and also to other caches within the system. \textbf{Cache coherence protocols} \cite{COHERENCY} define the behaviour of concurrent reads and writes to the same memory location. This can be a very complex task, and is something which we will return to in detail in later articles. 
+\subsection{Impact of Replacement Policy}
+If the replacement policy enforcement algorithm is free to choose any location in the cache, it is termed a \textbf{fully associative} cache. If each memory location can exist in one location only it is known as a \textbf{directly mapped cache.} \textbf{N-Way associative caches} represent a middle ground. For example, a two way set associative cache defines two locations in the cache that each main memory location could possibly exist. 
+\newline\newline
+Directly mapped cache return the fastest hit times, which associative caches have a relatively lower miss rate. Caches that use elements of both are constructed in an attempt to find a middle-ground between the extremes of both goals. Figure \ref{cache} illustrates this. 
 
+\begin{figure}
+\caption{Direct Mapped vs. Associative Cache}
+\begin{center}
+\includegraphics[scale=0.40]{../images/cache.png}
+\label{cache}
+\end{center}
+\end{figure}
 
 
 
