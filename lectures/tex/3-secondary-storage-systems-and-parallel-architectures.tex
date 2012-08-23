@@ -43,7 +43,9 @@ This level exhibits {\bf block level striping} with no parity and no mirroring. 
 \subsubsection{RAID Level 1}
 This level is simply {\bf mirroring} without parity or striping. This decreases the chance of catastrophic failure and, again due potential concurrency, increases read access times. The sacrifice is, often marginal, decrease in write cycle time. 
 \subsubsection{RAID Level 2}
-
+Level one exhibits {\bf bit level striping} with \bf{hamming code parity}. Each sequential bit is on a different disk. To facilitate this, spindle rotation is synchronized. The parity data is stored on at least one of the disks and can be used to correct errors that are made on any disk over time. 
+\subsubsection{RAID Level 3}
+This level exhibits \{bf byte level striping} with {\bf dedicated parity}. 
 
 
 
