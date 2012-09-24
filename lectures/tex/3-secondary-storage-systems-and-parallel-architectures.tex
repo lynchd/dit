@@ -50,10 +50,27 @@ This level exhibits \{bf byte level striping} with {\bf dedicated parity}. A ded
 Block level striping with dedicated parity.  
 \subsubsection{RAID Level 5}
 This level is one of the more popular due to the redundancy it provides. This resilience against failure is quite desirable, in particular in mission critical server systems. This level has block level striping with distributed parity. Since parity data is distributed across disks, it mitigates against failure of one or a number of the disks. When a disk fails, performance is merely degraded until it is repaired or replaced. 
-
-
-
-
+\subsubsection{RAID Level 6}
+To add another layer of redundancy, RAID level 6 has block level striping with double distributed parity. This gives full fault tolerance for two disk drive failures.
+\subsection{Nested and Hybrid RAID}
+In order to tune the level of reliability and performance, one can use multiple RAID configurations concurrently, either as a hybrid configuration or in a hierarchy. One of the most popular configurations for production data-base servers is RAID 1+0, commonly referred to as RAID 10. Specifically, RAID 10 is a set of mirrored disks in a striped set configuration. At least 4 disks are required for this configuration. The performance of Block level striping from RAID level 0 is complimented by the redundancy afforded by mirroring as is done in RAID level 1. Figure \ref{raid10} illustrates this configuration. Other hybrid configurations of RAID are also popular, for example, RAID 5+1, is a cost effective, performant system for read-oriented database systems. For further reading on RAID and the uses of RAID see. 
+\begin{figure}
+\caption{RAID 10 - A mirrored stripe configuration \cite{GEEKSRAID}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/raid10.png}
+\label{memory-h}
+\end{center}
+\end{figure}
+\section{Parallel Architectures}
+Thus far we have only discussed instructions executing serially. In all modern computer systems there is at least one form of parallelism acting at the core. Parallelism can simply be boiled down into executing multiple instructions, or parts of instructions at once. This can take the form of a single computer executing multiple programs in parallel, multiple cores (possibly distributed) executing multiple instructions in parallel, or single cores execution different stages of different instructions in parallel. In most modern computer systems aspects of all of the above feature. In short, parallelism can arise at the task level, the instruction level, or the machine level. 
+\newline\newline
+The Michael J. Flynn Taxonomy of Computer Architectures is still useful today for classifying differing types of architecture, particularly in the context of parallelism. He defined a parallel architecture as one that contains multiple interconnect \{bf processor elements}. The four classes of architecture discussed in the Taxonomy are as follows. 
+\begin{itemize}
+\item Single Instruction, Single Data (SISD)
+\item Single Instruction, Multiple Data Stream (SIMD)
+\item Multiple Instruction, Single Data (MISD)
+\item Multiple Instruction, Multiple Data (Multi-Processors)
+\end{itemize}
 
 
 \bibliography{../biblio/techfundamentals.bib}{}
