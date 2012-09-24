@@ -45,8 +45,11 @@ This level is simply {\bf mirroring} without parity or striping. This decreases 
 \subsubsection{RAID Level 2}
 Level one exhibits {\bf bit level striping} with \bf{hamming code parity}. Each sequential bit is on a different disk. To facilitate this, spindle rotation is synchronized. The parity data is stored on at least one of the disks and can be used to correct errors that are made on any disk over time. 
 \subsubsection{RAID Level 3}
-This level exhibits \{bf byte level striping} with {\bf dedicated parity}. 
-
+This level exhibits \{bf byte level striping} with {\bf dedicated parity}. A dedicated parity disk is required for this level. As with previous configurations, with dedicated parity any failure of the parity disk will leave the drive vulnerable and essential at RAID Level 0, except with byte level striping. 
+\subsubsection{RAID Level 4}
+Block level striping with dedicated parity.  
+\subsubsection{RAID Level 5}
+This level is one of the more popular due to the redundancy it provides. This resilience against failure is quite desirable, in particular in mission critical server systems. This level has block level striping with distributed parity. Since parity data is distributed across disks, it mitigates against failure of one or a number of the disks. When a disk fails, performance is merely degraded until it is repaired or replaced. 
 
 
 
