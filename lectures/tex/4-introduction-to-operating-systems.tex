@@ -31,7 +31,7 @@ Each of the above examples can be examined in terms of the user or the system pe
 \end{center}
 \end{figure}
 \subsection{Structure}
-A {\bf job} is defined as some unit of work to be executed by the computer system. In a single processor system with multiple jobs, only one job can access the system as once. In these systems {\bf multiprogramming} is used so that the CPU, as much as possible, has something to execute. It also facilitates \{bf multitasking} or {\bf time-sharing}, whereby multiple programs are {\bf switched} into and out of the CPU so that multiple programs and multiple users can be catered for. In the case where a user is interfacing with the computer system, it is said to be a {\bf response time sensitive} interaction. A program loaded into memory and either executing or ready for execution is called a {\bf process}. Processes that are {\bf I/O bound} will typically do a lot of waiting around for peripheral devices and are therefore good candidates for switching. In a typical scenario, a process that is waiting on an I/O operation to complete is switched out of the processor and a more CPU bound processes is switched in. A {\bf job pool} of switched out and processes is managed and maintained by the operating system. The decision making process is known as {\bf job scheduling} and is something we will consider in detail in this module. 
+A {\bf job} is defined as some unit of work to be executed by the computer system. In a single processor system with multiple jobs, only one job can access the system as once. In these systems {\bf multiprogramming} is used so that the CPU, as much as possible, has something to execute. It also facilitates {\bf multitasking} or {\bf time-sharing}, whereby multiple programs are {\bf switched} into and out of the CPU so that multiple programs and multiple users can be catered for. In the case where a user is interfacing with the computer system, it is said to be a {\bf response time sensitive} interaction. A program loaded into memory and either executing or ready for execution is called a {\bf process}. Processes that are {\bf I/O bound} will typically do a lot of waiting around for peripheral devices and are therefore good candidates for switching. In a typical scenario, a process that is waiting on an I/O operation to complete is switched out of the processor and a more CPU bound processes is switched in. A {\bf job pool} of switched out and processes is managed and maintained by the operating system. The decision making process is known as {\bf job scheduling} and is something we will consider in detail in this module. 
 \newline\newline
 The operating system must also assist in CPU scheduling. With multiple processes running at the same time, the operating system also needs to manage main memory and secondary storage, as well as I/O interactions with the user and tertiary devices. In doing this operating systems provide a means to {\bf allocate} and {\bf de-allocate} memory. Operating systems will also typically provide some form of {\bf virtual memory} that allows a process that is not completely in memory to be executed. A {\bf file system} is used to organise data that is to be kept on disk, which itself needs to be managed using a {\bf disk management} facility. Orderly execution of processes is guaranteed via job {\bf synchronization} and {\bf communication} mechanisms. 
 \subsection{Interrupt Handling}
@@ -88,7 +88,7 @@ Each of the above services of an operating system is typically exposed by one or
 \label{systemcall}
 \end{center}
 \end{figure}
-The services shown in section \ref{OS Services} will each have an associated set of system calls. It is recommended here to read up on the POSIX standard API \cite{POSIXAPI}.
+The services shown in the previous section will each have an associated set of system calls. It is recommended here to read up on the POSIX standard API \cite{POSIXAPI}.
 \section{The Kernel}
 The Kernel is the core of the operating system and the actual bridge between applications and actual data processing by the hardware. A kernel can be thought of as the lowest layer of abstraction from the hardware. Different operating systems will have different types of services implemented at the kernel layer. Invariably, operating systems will ship with other software that compliment this kernel. For example, Windows Explorer is complimentary to file system set of system calls that are exposed by the Windows Kernel. More deeply, the common controls library, which is responsible for re-usable GUI controls is a complimentary library to the base kernel, and is re-used in most windows software. The distinction between the kernel layer and supporting software is malleable, although designs can be broadly classified into {\bf monolithic},{\bf micro}, which have different deliniations for which code is executed in kernel space, and {\bf hybrid} kernels where the lines become even more blurry. 
 \subsection{Monolithic}
@@ -98,7 +98,7 @@ An alternative approach to kernel design is to remove all non-essential code fro
 \begin{figure}
 \caption{Mono- vs. Micro- kernel design}
 \begin{center}
-\includegraphics[scale=0.45]{../images/mono-vs-micro-kernel.png}
+\includegraphics[scale=0.45]{../images/mono-vs-micro.png}
 \label{monomicro}
 \end{center}
 \end{figure}
@@ -113,7 +113,7 @@ We introduce Virtual Machines here briefly as you will start using them quite so
 \begin{figure}
 \caption{a) Non-Virtual and b) Virtual Machine \cite{OSCONCEPTS}}
 \begin{center}
-\includegraphics[scale=0.45]{../images/virtual-machines.png}
+\includegraphics[scale=0.45]{../images/virtual-machine.png}
 \label{virtualmachines}
 \end{center}
 \end{figure}
