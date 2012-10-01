@@ -1,0 +1,56 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\floatstyle{boxed} 
+\restylefloat{figure}
+\renewcommand*\familydefault{\sfdefault}
+\title{Process Management and IPC}
+\author{David Lynch - david.lynch@raglansoftware.com }
+\begin{document}
+\maketitle
+\begin{abstract}
+This article will dig into the details of process managment and inter-process communication(IPC). It is important for any programmer to understand the process lifecycle, and in particular to ensure that any applications that are written corretly leverage these functions, in particular provider clear entry and exit points. When modularizing function into seperate compontents, how these processes communicate also becomes a very important tool in the armoury.
+\end{abstract}
+\section{Process Management}
+A {\bf process} is an active entity of work in a computer system. A process will consist of some code, or more formally a text-section. There are a number of things that the operating system will store that are associated with each process. Firstly, a copy of the {\bf program counter} and {\bf CPU} register file is necessarily kept. When the process is context switched, in order to resume from the exact location we left off, we must restore these. Another important entity associated with a process is its stack. This can be thought of as a region of memory that contains state that is typically local to the function or method that is currently executing. Function parameters, local variables and return variables are all kept on the stack, and this stack will typically be multiple layers deep. The depth depends on how many seperate function calls have not yet returned in any particular process. Seperate to the process stack we have {\bf heap memory}. This memory is a region that is usable by a process, but is dynamically allocated at runtime by the application and the operating system.
+\subsection{State}
+Speaking generally, a process can be any number of five states. Different operating systems will have different states, usually reflecting things like priority, but each can be distilled as follows. 
+\begin{itemize}
+\item New - The Process is undergoing creation.
+\item Running - Instructions are being executed.
+\item Waiting - The process is stalled waiting for some event.
+\item Terminated - The process has finished execution.
+\end{itemize}
+On process may run on one processor at any one time, while many processes can be in the ready and weating states. 
+\begin{figure}
+\caption{The Process State Life-Cycle \cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/process-cycle.png}
+\label{vmarch}
+\end{center}
+\end{figure}
+\subsection{Process Control Block}
+Frequently referred to as the PCB, the process control block is an explict collection of all the important data that surrounds the management of a process. The following data is part of the process control block.
+\subsubsection{Process State} 
+\subsubsection{Program Counter}
+\subsubsection{Register State}
+\subsubsection{CPU Schedule Information}
+\subsubsection{Memory Management Information}
+\subsubsection{Accounting Information}
+\subsubsection{I/O Status Information}
+\end{itemize} 
+
+\bibliography{../biblio/techfundamentals.bib}{}
+\bibliographystyle{plain}
+\begin{center}
+{\small \copyright  David Lynch 2012. Do not reproduce without written permission.}
+\end{center}
+\end{document}
