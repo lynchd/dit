@@ -62,14 +62,27 @@ A thread creation  must only happen by means of a fork that will {\it duplicate 
 \subsubsection{Thread Cancellation}
 A thread must either terminate itself, or be terminated by some other thread. When termination of a thread is requested it can be executed {\bf asynchronously} whereby the OS does not wait around for the thread to terminate gracefully. Alternatively, {\bf deferred cancellation} causes the operating system to periodically check if the thread is ready for termination, usually giving it warning and the opportunity to cancel itself. Graceful cancellation by the thread assists in the effective reclamation of resources, state and shared memory. In a forced termination, these are all executed immediately. If the thread to be executed has not {\bf checkpointed} it's state, that state will be lost giving in unpredictable results.  
 \subsubsection{Signal Handling}
+A signal, or event handler, is code that gets executed when the OS, program or user tries to communicate with the thread. The OS is responsible for the guarantee of delivery. There are synchronous signal handlers that require immediate action. Examples of such are illegal memory access, errors such as division by zero. Asynchronous signals do not require immediate handling, but there may be a time period after which an asynchronous signal will become a synchronous one. The most common example is the user action {\it ctrl+c} which forces a process to exit. A default signal handler will almost always be provided by the underlying library. We will only replace this handler if we require special behaviour to occur as the signal is handled.   
+\subsubsection{Thread Pools}
+As the number of threads increases, the cost of managing these threads also increases. This may not necessarily be a linear function. At some point the presence of huge amounts of threads on a system causes so much context switching that it would be better to execute in a single threaded fashion. Furthermore, there is a cost to creating a new thread. So much so that it may not be enough to simply create these threads on demand. For these two reasons thread pools are created by both the operating system and the user applications. They are typically initialized in bulk as an up-front cost and are set to a fixed, or semi-fixed size. These pools sit idle until they are given work. When the pool has been exhaused, either the request for a new thread fails due to lack of resources, or some space in the pool is freed up. When there is a free thread in the pool and a new thread is requested, a thread in  the pool is immediately assigned some work. This can have a positive effect on the response time of the request. Web Servers will sit around with thread pools that are waiting to handle requests for web pages from users. Since for every request we do not have to create new threads, the user experience is significnatly improved. Tuning thread pools in terms of size is often an empricial process. Designing your application to leverage thread pools is more of an architectural decision.
 \subsubsection{Thread Specific Data}
-\subsubsection{Scheduler Activations}
+Threads my need their own copies of data that may be duplicated in the shared memory space or may be totally scoped locally to the thread. This in particular allows partial results of work on threads to be stored before they are ready for sharing with other threads. The Java {\it ThreadLocal } class facilitates this behaviour. It provides an area for Threads to store standard variables, with the cavieat that each time a thread will store a particular value named by a key, a unique copy of the data is created that is exclusively accessable by the thread \cite{threadlocal}. A good use of this facility is in situations where you need to share state accross the thread, but the state is only relevant in the context of the thread.  
+\section{CPU Scheduling}
+\subsection{Pre-Emptive Scheduling}
+\subsection{The Dispatcher}
+\subsection{Scheduling Criteria}
+\subsection{FCFS - First Come First Served}
+\subsection{SJF - Shortest Job First}
+\subsection{RRS - Round Robin Scheduling}
+\subsection{Multi-Level Queue Scheduling}
+\subsection{Multi-Processor Scheduling}
+\subsection{Thread Scheduling}
+\subsection{Scheduling Algorithm Evaluation}
+\subsection{Windows XP}
+\subsection{Linux}
 
 
-\subsection{Windows XP Threads}
 
-
-\subsection{Linux Threads}
 \bibliography{../biblio/techfundamentals.bib}{}
 \bibliographystyle{plain}
 \begin{center}
