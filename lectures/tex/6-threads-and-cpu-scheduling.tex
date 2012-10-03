@@ -68,19 +68,80 @@ As the number of threads increases, the cost of managing these threads also incr
 \subsubsection{Thread Specific Data}
 Threads my need their own copies of data that may be duplicated in the shared memory space or may be totally scoped locally to the thread. This in particular allows partial results of work on threads to be stored before they are ready for sharing with other threads. The Java {\it ThreadLocal } class facilitates this behaviour. It provides an area for Threads to store standard variables, with the cavieat that each time a thread will store a particular value named by a key, a unique copy of the data is created that is exclusively accessable by the thread \cite{threadlocal}. A good use of this facility is in situations where you need to share state accross the thread, but the state is only relevant in the context of the thread.  
 \section{CPU Scheduling}
+Execution of a process can be boiled down to a cycle of CPU execution, or a {\bf CPU burst} and an I/O wait followed by an {\bf I/O burst}. If a process mostly consists of CPU bursts it is CPU bound. Otherwise, if it mostly consists of I/O bursts, it is {\bf I/O bound}. CPU scheduling algorithms focus on the management of these bursts in the context of some metric. For example, our objective in any system may be to maximize the duration of CPU bursts so one important process completes without being switched out. In a time-sharing system, our priority may be to insure all process get at least a short amount of time on the CPU. The {\bf scheduler} is responsible for the selection of processes on the ready queue that should be executed. The unit of data in this queue is the process control block. 
+\newline\newline
+A CPU scheduling decision is required when 
+\begin{itemize}
+\item A process switches from running to waiting state. 
+\item A process switches from running to the ready state. 
+\item A process switches from the waiting state to the ready state. 
+\item A process terminates. 
+\end{itemize}
 \subsection{Pre-Emptive Scheduling}
+If a {\bf non pre-emptive} or {\bf co-operative} scheduling algorithm is used, a process can grab the CPU and release it when it is finished. This is only applicable to scenarios 1 and 4 above. Potential pitfalls of this approach are obvious, especially in a multi-programmed system such as a desktop operating system. Relying on the good nature of any programmer to release any resource, let alone the CPU, is a bad strategy. {\bf Pre-emptive} scheduling assists us here. Using a timer and some OS logic, a process is forced to give up the CPU if certain criteria are met. These are more often than not related to the executing time, or estimated execution time of the process. Interrupts facilitated this context switch. Code that is executing in Kernel space may be able to disable pre-emptive scheduling. This is particularly useful if it is imperative the kernel level call is not switched out mid-execution. 
+\newline\newline
+At the application layer, switching out and in processes while accessing shared data is a particularly dangerous operation. Care must be taken to ensure that results of modifications to shared state are consistent. This is a tricky problem in the general case, so the best the operating system can do is provide some features that enable application programmers to ensure shared state is consistent across switches. We will talk about this in much more detail in the next chapter. 
 \subsection{The Dispatcher}
+While the scheduler is responsible for choosing what process has control, the dispatcher is responsible for actually providing the control. Responsibilities of the dispatcher include 
+\begin{itemize}
+\item Switching Context - Loading and saving the contents of register state. 
+\item Switching User Modes 
+\item Affecting the PC with the correct instruction pointer
+The {\bf dispatch latency} is the time taken for the dispatcher to stop one process and start another process. 
 \subsection{Scheduling Criteria}
+Keeping the CPU utilized, or as busy as possible is a common criterion, in particular for batch processing systems. The {\bf throughput} is defined as the number of processes executed per unit time and is important in batch processing systems such as bank transaction processors. {\bf Turnaround time} is the time from the submission of the process to the completion of the process and may be important in systems that process real-time data. The {\bf waiting time} is the sum of the periods the process spends in the waiting queue. Finally, the {\bf response time} is the time it takes to start responding to user interaction. 
+\newline\newline
+Our objective may be a function of all of the above criteria. Maximization of throughput and utilization go hand in hand. Minimization of turnaround time, waiting time and response time are all desirable in systems that interact with users in real-time. At a slight angle to these criteria is {\bf minimization of variance} of metrics related to all of the above criteria. This improves the predictability of a system. 
 \subsection{FCFS - First Come First Served}
+This is the simplest approach to scheduling. It is a {\it non pre-emptive} algorithm in which the first process to request the CPU aquires it until it has finishing executing. Average waiting time can be quite long for this scheduling algorithm, therefore affecting both throughput and turnaround time. The CPU and device utilization characteristics are also poor due to the {\bf convoy effect}. This happens when a long running process blocks the CPU for a large period of time, and several other processes need to use this process for just a short period of time. If the long running process is waiting on I/O then the shorter processes, which may not be I/O bound, simply have to wait in line for this process to finish and release. This approach is certainly not recommended for time sharing systems.  
+\begin{figure}
+\caption{First Come First Served. \cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/fcfs-sched.png}
+\label{fcfs}
+\end{center}
+\end{figure}
 \subsection{SJF - Shortest Job First}
+In this algorithm, the CPU is given to the process that has the smallest next CPU burst. In the case of equality, this reduces to first-come-first-served. This gives the minimal average waiting time for a given set of processes and is provably optimal \cite{proveoptsjf} for this criterion. However, knowing the length of the next CPU cycle can be extremely difficult. At the CPU level, the only information that is useful in predicting the burst size is an exponential average over the most recent information available to the processor given past executions. This algorithm can be implemented either pre-emptively or in a non pre-emptive fashion. In the former case, when a burst has exceeded the predicted burst size, it may be placed back onto the ready queue, or it may be simply terminated. The estimated time remaining will count in this circumstance, and the algorithm is referred to a shortest time remaining algorithm.  
+\begin{figure}
+\caption{Shortest Job First \cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/fcfs-sched.png}
+\label{fcfs}
+\end{center}
+\end{figure}
 \subsection{RRS - Round Robin Scheduling}
+In this algorithm, a time slice is defined, usually in the 10ms to 100ms range. The ready queue is a circular FIFO queue, such as a ring-buffer. A process will be given its time-slice to do some work and will be switched off the CPU once this time slice has expired. This is fully a pre-emptive scheduling algorithm. Average waiting time can be long with this algorithm, and typically the size of the time slice is the single biggest factor in determining if this is true. When round-robin scheduling, the number of context switches executed by the dispatcher is sensitive. As a general rule of thumb, the time slice should be picked to be short enough that 80 percent of CPU burst are shorter than it. This keeps the queues of a manageable size, the turnaround time acceptable while ensuring context switches are not too much of a factor. 
+\caption{Round Robin Scheduling \cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/rr-sched.png}
+\label{fcfs}
+\end{center}
+\end{figure}
 \subsection{Multi-Level Queue Scheduling}
+When processes can be classified into groups with differing scheduling characteristics, using multi-level queues becomes useful. The commonest division is when processes are classed as either {\bf background} or {\bf foreground}. These differ in requirements on turnaround time and response time. With multi-level scheduling, the ready queue is partitioned into several separate queues. At each level, a different algorithm may be applied. To ensure that {\bf starvation} is minimized, we may include a feedback mechanism. If a background process is waiting in a queue division for too long it may be promoted into the foreground automatically. Similarly, a foreground process may decay into a background class process over time. Figure \cite{mlq} illustrates this. 
+\caption{Multi-Level Scheduling with Feedback \cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/mlq-sched.png}
+\label{mlq}
+\end{center}
+\end{figure}
 \subsection{Multi-Processor Scheduling}
+On multi processor systems, we may have {\bf asymmetric} multi-processing or {\bf symmetric multiprocessing}. In the former case, one processor is the master and its scheduler is responsible for farming jobs out to different slave CPUs. In the symmetric case, each processor is self scheduling. There can be a high cost in moving processes between assigned CPUs after execution is started. A process will typically have an {\bf affinity} for one CPU once it begins. This guarantee may be a soft - i.e. best effort - or a hard guarantee. 
+\newline\newline
+{\bf Load Balancing} attempts to keep workload evenly distributed across processors. Each processor necessarily has its own ready queue and a load balancer may invoke {\bf push migration} where it moves work away from processors that are too busy by some measure. Conversely, the CPU scheduler may invoke {\bf pull migration} where an idle scheduler fills its empty queue with jobs from another processor.
 \subsection{Thread Scheduling}
-\subsection{Scheduling Algorithm Evaluation}
+The {\bf process contention scope} is where user threads vie with each other to be mapped onto kernel threads. This is facilitated by an LWP or {\bf lightweight process}. It is actually at the {\bf system contention scope} where CPU scheduling takes place, and it is kernel threads that are  scheduled on the CPU. 
 \subsection{Windows XP}
+Windows XP exhibits priority based, time-sliced pre-emptive scheduling. A thread will run on a CPU until either a blocking system call, it terminates or until the end of its time quantum. It provides a 32 level priority scheme to associate priorities with various threads. In this regard, multi-level scheduling is used. Some feedback is implemented, in that foreground processes that are moved from the background are automatically promoted in priority when they are selected by the user. There is one queue per scheduling priority. The {\it idle thread} is executed if there is nothing to do. Figure \ref{xpched} shows the priority matrix in detail. Further reading on this can be found in \cite{windowsxpsched}.
+\caption{Windows XP Thread Priorities \cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/xp-sched.png}
+\label{xpsched}
+\end{center}
+\end{figure}
 \subsection{Linux}
-
+Linux uses a pre-emptive, priority based algorithm with two separate priority ranges. The time quantum is variable and related to the priority of a process. The classes are {\bf realtime} and {\bf nice}. A process is eligible for execution when it has not exhausted its time-slice. Thereafter it must wait for other processes to exhaust theirs before it receives a new time-slice. Each processor has its own {\bf run-queue} which tracks an {\bf active} and {\bf expired} priority array. Real-time tasks have static priorities, while others have a dynamic priority based on their nice values.  The nice value is adjusted in a range from 100 to 140 based on how long a task has been sleeping for I/O. The nice value is adjusted to favour interactive tasks that conduct lots of I/O. CPU priorities have far shorter sleep times, but they also have lower priorities. For more reading on this see \cite{linuxsched}.
 
 
 \bibliography{../biblio/techfundamentals.bib}{}
