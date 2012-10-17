@@ -216,11 +216,81 @@ do {
 \subsection{Monitors}
 A monitor is an abstract data-type, or class, that presents public access to private data in a controlled manner. It is functionally similar to a mutex, allowing only one thread of execution enter a critical section associated with some resource at a time. Typically a queue of interested threads is maintained and only one thread allowed to invoke operations on that monitor at any one time. In Java, each object is a monitor. Control of invocation of methods on an object can be obtained exclusively using the synchronized keyword, as shown earlier in this article. In fact, we solved our race condition problem through use of a monitor in Java as we instructed each thread to acquire exclusive access to all of each objects methods while we were in the critical section of code that mutated the account balance. For more on Monitors in Java see \cite{JAVASYNC}. 
 \section{Deadlock, Livelock and Starvation}
-With multiple threads waiting in a queue on multiple resources, we can end up in a situation where two or more processes are waiting indefinitely for an event that can only be caused by one of the waiting processes in the queue. This situation is known as {\bf deadlock}. A very similar concept is {\bf livelock}, whereby the states of all of the members of the queue are constantly changing with respect one another, i.e. they are not waiting, but in the main, no progression is made. This is a special case of {\bf starvation}, whereby a process progression is hampered due to its inability to get a lock on the resource that it needs to progress, typically due to the resource being held by other processes at various times during its wait period. This typically happens if the queueing strategy is last-in-first out, and the queue never gets time to empty. 
+With multiple threads waiting in a queue on multiple resources, we can end up in a situation where two or more processes are waiting indefinitely for an event that can only be caused by one of the waiting processes in the queue. This situation is known as {\bf deadlock}. Figure \ref{deadlock} shows a schedule with two processes, each waiting on another to release a lock owned by the other. A very similar concept is {\bf livelock}, whereby the states of all of the members of the queue are constantly changing with respect one another, i.e. they are not waiting, but in the main, no progression is made. This is a special case of {\bf starvation}, whereby a process progression is hampered due to its inability to get a lock on the resource that it needs to progress, typically due to the resource being held by other processes at various times during its wait period. This typically happens if the queueing strategy is last-in-first out, and the queue never gets time to empty. 
+\begin{figure}
+\caption{A deadlocked schedule with two processes}
+\begin{center}
+\begin{tabular}{| l | l | }
+  \hline
+  P0 & P1 \\ \hline
+  wait(S) & wait(Q) \\
+  wait(Q) & wait(S) \\
+  .. & .. \\
+  signal(S) & signal(Q) \\
+  signal(Q)	& signal(S) \\
+  \hline
+\end{tabular}
+\label{deadlock}
+\end{center}
+\end{figure}
 \subsection{The Dining Philosophers Problem}
-This is a well documented analogy that demonstrates the need to allocate resources in a deadlock free manner across competing resources. Philosophers  can be in one of two states, thinking or eating. They all sit at a round table and are sharing a bowl of rice. They cannot communicate with each other by thinking. When hungry, they may only acquire one chopstick at a time. When no longer hungry, each philosopher puts down both of his chopsticks. There are five chopsticks at a table of five philosophers, all sharing one bowl of rice. Each philosopher needs two chopsticks to eat. If there were no strategy to ensure progress, a deadlock situation could occur in a number of scenarios. If all philosophers become hungry at the same time, and each pick up the right chopstick first, there will be an indefinite wait on the right chopstick. This is a deadlock. If three philosophers are particularly hungry, they may acquire the chopsticks, leaving the other philosophers starving. If we restrict holding a single chopstick to a period of time, such that if we do not require a second chopstick in that time we release the single chopstick, then we are open to an interleaved wait-release cycle. This is a livelock. 
+This is a well documented analogy that demonstrates the need to allocate resources in a deadlock free manner across competing resources. Philosophers  can be in one of two states, thinking or eating. They all sit at a round table and are sharing a bowl of rice. They cannot communicate with each other by thinking. When hungry, they may only acquire one chopstick at a time. When no longer hungry, each philosopher puts down both of his chopsticks. There are five chopsticks at a table of five philosophers, all sharing one bowl of rice. Each philosopher needs two chopsticks to eat. If there were no strategy to ensure progress, a deadlock situation could occur in a number of ways. If all philosophers become hungry at the same time, and each pick up the right chopstick first, there will be an indefinite wait on the right chopstick. This is a deadlock. If three philosophers are particularly hungry, they may acquire the chopsticks, leaving the other philosophers starving. If we restrict holding a single chopstick to a period of time, such that if we do not require a second chopstick in that time we release the single chopstick, then we are open to an interleaved wait-release cycle. This is a live-lock. 
+\subsubsection{Semaphore Solution}
+Introduce a waiter to the table. Each philosopher must ask the permission of the waiter before any forks are lifted up. Since the waiter will track the amount of forks available and in use, he acts as an arbitrator in preventing deadlock. Practically, the waiter is implemented as a semaphore across the 5 forks. The additional constraint that unless a philosopher can acquire two forks atomically, then the philosopher must release any existing fork is added to the rule-set. Further modifications can be made to this algorithm to decrease the likelihood of starvation, such as limiting the amount of time for which a chopstick can be  held. 
+\subsubsection{Other Solutions}
+There is at least one other solution that can be implemented when the ability for philosophers to talk to each other is added. You should look this up and understand it before continuing.
+\begin{figure}
+\caption{Dining Philosophers at a Table \cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/dining.png}
+\label{os}
+\end{center}
+\end{figure}
 \subsection{The Bounded Buffer Problem}
-This is also known as the producer consumer problem. There is a producer of work, a consumer of work and a shared queue. The producer and consumer both run concurrently. The consumer removes data from the queue, while the producer adds new work to the queue. We need to ensure that the producer does not try to add data to a full buffer. Similarly, the producer should not remove data from an empty queue. Lastly, we need to ensure that both processes do not deadlock or starve. The listing in figure x illustrates the problem. 
+This is also known as the producer consumer problem. There is a producer of work, a consumer of work and a shared queue. The producer and consumer both run concurrently. The consumer removes data from the queue, while the producer adds new work to the queue. We need to ensure that the producer does not try to add data to a full buffer. Similarly, the producer should not remove data from an empty queue. Lastly, we need to ensure that both processes do not deadlock or starve. The only way to correctly manage this problem is to supplement standard synchronization primitives such as locks with the ability of threads to communicate with one another. In the case of Java, we use the {\bf wait} and {\bf notify} invocations on the shared Queue's monitor. The thread safe queue in listing \ref{jqueue} shows how both enqueue and dequeue can be correctly implemented so that there is no deadlock. If the queue is not full the producer \ref{jproducer} will keep pushing data onto the queue. Concurrently, the consumer \ref{jconsumer} will be switched in periodically to empty the queue. When the queue is full, the consumer will not attempt to push any more data onto the queue but instead blocks on acquiring the monitor on the Queue. This causes the producer to wait until some invocation of notify on the Queue monitor. Since the consumer invokes notify after a successful dequeue, the producer will then wake up and acquire the monitor that the consumer has release. Note that the only time the monitor is acquired is when a wait is required. In the cases of normal production to a non-full queue and normal emptying of a non-full queue, neither the producer and consumer are concerned with co-ordination. However, at this time, synchronization is still important, in particular around the pointer that demarcates the head and the tail of the buffer. The synchronized nature of the method provides protection against lost updates and dirty reads as outlined before. 
+\newline\newline
+The producer consumer problem illustrates important concepts in synchronization and, in particular, co-ordination between threads. Please do not move on until you fully understand the Java code and how the Monitor works. You can check out the code from \cite{github} and play with it. Try removing synchronized keywords, or removing the waits. Try reworking the problem to work with multiple producers and consumers. 
+
+\begin{figure}
+\caption{Java implementation of a consumer}
+\begin{center}
+\lstinputlisting[language=Java]{../listings/prodconsumer/Consumer.java}
+\label{jconsumer}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{Java implementation of a consumer}
+\begin{center}
+\lstinputlisting[language=Java]{../listings/prodconsumer/Producer.java}
+\label{jproducer}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{A thread-safe bounded buffer in Java.}
+\begin{center}
+\lstinputlisting[language=Java]{../listings/prodconsumer/Queue.java}
+\label{jqueue}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{A simple Unit of Work}
+\begin{center}
+\lstinputlisting[language=Java]{../listings/prodconsumer/UnitOfWork.java}
+\label{junit}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{Producer consumer problem main program.}
+\begin{center}
+\lstinputlisting[language=Java]{../listings/prodconsumer/ProducerConsumerProblem.java}
+\label{jprodconsumer}
+\end{center}
+\end{figure}
+
 \section{Transactions and Atomicity}
 A transaction is a single unit of work that is either performed in its entirity or not performed at all. If a transaction is completed in its entirity it is said to be {\bf committed}. If the transaction is not completed it is said to be aborted. To ensure atomicity, the effects of aborted transactions must be {\bf rolled back}. This ensures consistency by leaving the system in the same state as it appeared before it entered the transaction.  
 \subsection{Log Based Recovery}
