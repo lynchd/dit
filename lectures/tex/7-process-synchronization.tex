@@ -105,9 +105,34 @@ A transaction is a single unit of work that is either performed in its entirity 
 \subsection{Log Based Recovery}
 In order to support rollback, one approach to ensuring the rollback of changes to volatile memory is to log all modifications. Write-ahead logging uses log entries to record data about the modification. This will include a unique transaction id, the old value and the new value. Everything in this case is recorded to stable storage before volatile storage is modified. There is a performance penalty, the cost being more complexity and more storage costs. The advantage is the ability to undo the transaction by reversing the log, and transactions can be replayed  by playing the log forward. 
 \subsection{Checkpoints}
-The disadvangte of explicit logging is that replaying the log may be redundant for some or a lot of transactions. Determining which transactions need to be redone and which need to be rolledback is a search problem and can be costly. Checkpointing will set explicit safe points at which all records in volatile memory are outputted to stable storage. When just after a checkpoint is logged, everything is fully consistent. However, data can still be lost between checkpoints. 
+The disadvantage of explicit logging is that replaying the log may be redundant for some or a lot of transactions. Determining which transactions need to be redone and which need to be rolled back is a search problem and can be costly. Checkpointing will set explicit safe points at which all records in volatile memory are outputted to stable storage. When just after a checkpoint is logged, everything is fully consistent. However, data can still be lost between checkpoints. 
 \subsection{Concurrent Atomic Transactions}
-
+The effects of transactions that execute concurrently must be exactly the same as the effects if these transactions were execute serially. With multiple concurrently executing transactions, particularly on areas of data that are highly shared, a exposing a single mutex is not often the best strategy. Essentially, the mutex becomes the focal point of the transaction and the amount of time any concurrently executing transaction waits around on the mutex is not ideal. There are properties of transactions that can be leveraged to achieve consistency in the presence of concurrency. 
+\newline\newline
+Concurrent transactions are executed in a {\bf schedule}. Each schedule contains multiple transactions that are executed {\bf serially} or {\bf non-serially}. If a set of transactions is executed serially, then each component part of each transaction will be executed one after another. A non-serial execution of a schedule happens when certain components of each transaction are executed {\bf out of order}. For this to be feasible, the net effect of the transaction must be exactly the same as if the schedule executed serially. For transactions Ti and Tj we say that operations Oi and Oj {\bf conflict} if they access the same data and at leas one of those operations is a write. If operations Oi and Oj do not conflict then we can swap operations Oi and Oj creating a new schedule Sprime. If a schedule S can be transformed into a schedule Sprime by a series of swaps we say that S is {\bf conflict serializable} or just {\bf serializable}. Not all schedules possess this property. 
+\newline\newline
+Serializablilty can be guaranteed by associating each data item with a lock and requiring each transaction to adhere to a locking protocol. A {\bf shared lock} can be acquired by multiple executing transactions as it provides read access to the data item only. An {\bf exclusive lock} must only be granted to one transaction at a time as when acquired it provides read and write access to the data item. These locks are more commonly referred to a {\bf read lock} and {\bf write lock} respectively. One example of protocol build around these primitives is {\bf two phase locking}. This strategy sees the transaction exist in one of two phases. In the {\bf growing} phase the transaction acquires, but does not release, any locks. In the {\bf shrinking} phase the transaction may release but not acquire any new locks. These strategies do not guarantee that a particular schedule will be free from deadlock, however. 
+\newline\newline
+Previous methods define the order of execution of concurrent transactions at the first request that involves a conflict. Another way to achieve this is to select the order of execution in advance by assigning timestamps. Therafter we must ensure that any conflicted read or writes are executed in timestamp order. For Ti < Tj if timestamps designate that Ti occured before Tj then the schedule order must arrive at a state that is equal to the state arrived at if Ti and Tj were executed serially. 
+\newline\newline
+To do this, we must assign the following 
+\begin{itemize}
+\item Wtime - the largest timestamp of a transaction that sucessfully executes a write.
+\item Rtime - the largest timestamp of a transaction that sucessfully executes a read. 
+\end{itemize} 
+When transaction T with timestamp Ttime reads the data item Q 
+\begin{itemize}
+\item T is rolled back if Ttime < QWtime
+\item T executes if Ttime >= QWtime
+\item After execution QRtime := max(Ttime, QRtime)
+\end{itemize}
+When transaction T with timestamp Ttime writes the data item Q
+\begin{itemize}
+\item T is rolled back if Ttime < QRtime
+\item T is rolled bakc if Ttime < QWtime 
+\item Otherwise the T is executed 
+\item After execution QWtime := Ttime
+\end{itemize}
 
 \bibliography{../biblio/techfundamentals.bib}{}
 \bibliographystyle{plain}
