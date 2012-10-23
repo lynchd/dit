@@ -46,6 +46,7 @@
 \author{David Lynch - david.lynch@raglansoftware.com }
 \begin{document}
 \maketitle
+\begin{abstract}
 The final topics in the Operating Systems section of this course deals with the management of main memory. Once you are comfortable with creating processes, understanding how processes communicate with each other and taking advantage of threads the next concern lies with understanding these concepts. How the operating system manages main memory is a very important topic. As a programmer this will become clear if as soon as you start writing any non-trivial applications, particularly in the enterprise space. How the operating system manages memory allocated to your process has an effect on everything from how your program functions to the performance of your application. 
 \end{abstract}
 \section{Main Memory}
@@ -61,7 +62,7 @@ Libraries that are not dynamically linked by a program are termed statically lin
 \subsection{Swapping}
 Processes must be in main memory to be executed, but at various points may be swapped from memory to the backing store. For example, when a process is suspended, the memory manager may move the non longer executing process from main memory to disk. Processes may be swapped back into a different address space at some point after they are swapped out. The CPU calls the {\bf dispatcher} which checks to see if the next process in the ready queue is in memory. If it is not in memory, the process gets loaded. During this action, other processes that are not under execution may be swapped out to free up sufficient memory for the replacement process. {\bf Context Switch} time is a pure cost in this process, and is a direct function of the size of the program being executed, the performance characteristics of the backing store and other underlying hardware. For a process to be a candidate for disk swapping it must be {\bf completely idle}. In particular, waiting on I/O or for the CPU is not a sufficient reason to swap the process to the disk. 
 \subsection{Memory Allocation}
-In order to manage memory, division into fixed size partitions is the simplest approach. Each of these partitions will contain exactly one process. With this strategy, the number of processes is bound by the size of the physical memory space. Each partition is known as a {\bf hole}. The process acquires and releases each hole as it is swapped in and out of memory. The operating system may merge smaller holes into bigger ones to facilitate the loading of bigger processes into memory. The problem of satisfying a request for $n$ bytes of space from a list of free memory holes is one of dynamic allocation. One approach is to allocate the first hole that is large enough. The {\best fit} approach will allocate the smallest hole that is big enough, leaving the smallest hole left over. Lastly, the worst fit approach picks the worst possible fit for the process, ensuring the largest hole remains. First fit is faster, but both best and worst fit have better, and similar memory utilization characteristics. 
+In order to manage memory, division into fixed size partitions is the simplest approach. Each of these partitions will contain exactly one process. With this strategy, the number of processes is bound by the size of the physical memory space. Each partition is known as a {\bf hole}. The process acquires and releases each hole as it is swapped in and out of memory. The operating system may merge smaller holes into bigger ones to facilitate the loading of bigger processes into memory. The problem of satisfying a request for $n$ bytes of space from a list of free memory holes is one of dynamic allocation. One approach is to allocate the first hole that is large enough. The {\bf best fit} approach will allocate the smallest hole that is big enough, leaving the smallest hole left over. Lastly, the worst fit approach picks the worst possible fit for the process, ensuring the largest hole remains. First fit is faster, but both best and worst fit have better, and similar memory utilization characteristics. 
 \subsection{Fragmentation}
 In any allocation strategy when small unusable memory segments are left over, the system is suffering from memory fragmentation. There are two flavours of fragmentation that essentially differ by whether the left over memory that is unusable is contained in an allocated block, or in free space external to a block. 
 \subsubsection{External Fragmentation}
@@ -71,7 +72,7 @@ Generally holes of memory will not be allocated in the exact size required. The 
 \section{Paging}
 Paging is a memory management scheme that allows the physical address space of a process to be non-contiguous. This avoids the problem of fitting memory chunks of various sizes into contiguous main memory. This is typically implemented in hardware with very low level OS support. Physical memory is broken into fixed sizes known as {\bf frames}. Logical memory is broken into blocks of the same size known as {\bf pages}. When a process is executing its pages are loaded into available frames. Every CPU generated address is divided into {\bf page number} and {\bf page offset}. The page number is an index into the {\bf page table}, which holds the direct logical-to-physical mapping. It contains the base address of each page and the address of the corresponding frame in physical memory. The size of the page is fixed and defined by the hardware, but can range from 512-bytes to 16 megabytes. 
 \newline\newline
-If the logical address size is $2^m$ and the page size is $2^m$ addressing units then the higher order $m-n$ bits are the page number $p$ and the lower order $n$ bits are the {\bf page offset} or {\bf displacement} denoted as $d$. Figures \ref{paging}} and \ref{page mapping} show both the general configuration and an example mapping. 
+If the logical address size is $2^m$ and the page size is $2^m$ addressing units then the higher order $m-n$ bits are the page number $p$ and the lower order $n$ bits are the {\bf page offset} or {\bf displacement} denoted as $d$. Figures \ref{paging} and \ref{page mapping} show both the general configuration and an example mapping. 
 \begin{figure}
 \caption{The basics of paging.\cite{OSCONCEPTS}}
 \begin{center}
@@ -91,7 +92,7 @@ Since any free frame can be allocated to a process that needs it, there is no ex
 A {\bf frame table} is managed by the OS which details frame availability and allocation. Each entry contains the state of the frame and to which page the frame is mapped. The OS will also manage one {\bf page table} per process, meaning paging will add to context switch overhead. 
 \newline\newline 
 A major advantage of paging is the sharing of common code. {\bf Re-entrant} code is non self-modifiying code that is pure code that can be share accross processes. Page sharing can also facilitate and support the {\bf shared memory} IPC concept. Most modern operating systems use hierarchical paging. With a address spaces of sizes $2^24$ the size of the page table can become prohibitively large. This is known as {\bf multi-level} paging. 
-\subsubection{Hardware Support}
+\subsubsection{Hardware Support}
 The OS will allocate a page table per procesess, a pointer to which will be stored as part of the process control block. Hardware support is typically in the form of dedicated registers designed to make address translation efficent. Use of {\bf page-table base-registers} is feasible for page tables with small sizes. Essentially, this register contains a pointer to location 0 in the page table of the currently executing process. This value will be loaded from the PCB associated with the process that is currently executing. 
 \newline\newline
 However, for the above approach, we need at least too look ups into memory. Firstly, we need to acquire the page-table base register mapping and secondly we must load the page-table contents into memory. A {\bf translation look aside buffer} is an associative high speed cache used to alleviate look-ups into a page table associated with one or more processes. Figure \cite{page-tlb} illustrates how the TLB acts as as a cache in potentially removing the look-up into the page-table. Note particularly, the difference betwen what happens when there is a cache hit vs. what happens when there is a cache miss.
@@ -162,10 +163,45 @@ In general the page fault interrupt handler is concerned with a number of things
 It is possible, though possibly not desirable, to start a process with zero pages in memory. This causes immediate faulting upon execution and is known as {\bf pure demand paging}. Since page faulting is pure overhead, it is desirable to minimize time spent swapping. We again explit the principle of locality of reference. The worst case scenario of one page fault per instruction is extremely unlikely when we consider this principle. Nevertheless, there are still optimizations that can be leveraged by tuning various parameters around demand paging.
 \subsubsection{Performance}
 Due to the expense of interacting with backing store, demand paging has the potential to have a significant impact on the overall performance of a computer system. The {\bf effective access time} for demand paged memory is our most interesting measure when considering performance. As long as there are no fauls the EAT is equal to the memory access time. If there is a fault, it must be handled via several steps. Our effective access time can be capure by the following expression.
-$Time_{effective_access} = (1 - P) * m_{a} + P * Time_{page_fault}$
+$Time_{effective_access} = (1 - P) * Time_{memory access} + P * Time_{page fault}$ where $P$ is the probability of a page fault. 
 \newline\newline
-The following table illustrates the steps required
-
+Figure \cite{pf-steps}
+\begin{figure}
+\caption{Steps in completing a page fault}
+\begin{center}
+\begin{tabular}{| l | l | }
+  \hline
+  Description. \\
+  \hline
+  Trap to Operating System. \\
+  Save Registers and Process State. \\
+  Determine if interrupt was a page fault. \\
+  Check the legality of the reference. \\
+  Determine the location of the page on disk. \\
+  Read from the disk to the free frame. Includes I/O wait. \\
+  While waiting allocate the CPU something else. \\
+  Receive an interrupt indicating disk I/O is finished.  \\
+  Switch out other processes from the CPU. \\
+  Correct the page table showing the desired page is in memory. \\
+  Wait again for the CPU. \\  
+  Restore state from the PCB and resume interrupted instruction. \\
+  \hline
+\end{tabular}
+\label{pf-steps}
+\end{center}
+\end{figure}
+To service a page fault interrupt one to several hundred instructions of 1 to 100 microseconds is required. To read in the page from disk reads of the order of 8 milliseconds are not uncommon. A typical memory access cycle will complete in the order of microseconds. Restarting the process is also measured in orders of tens of microseconds. The following example shows how effective access time is directly proportional to the paging rate and how a page fault rate of just one in a thousand can decrease the effective access time to $89.56$ percent of optimal with no paging.  
+\begin{equation}
+\begin{split}
+&T_{fault} = 8,000,000 \\
+&T_{access} = 200 \\
+&P_{fault} = 1/1000 \\
+\\
+&T_{effective} = (1 - P) * 200 + P * 8,000,000\\
+&T_{effective} = (200) + 7,999,800 * 1/1000 \\
+&T_{effective} = 8.2ms\\
+\end{split}
+\end{equation}
 
 \bibliography{../biblio/techfundamentals.bib}{}
 \bibliographystyle{plain}
