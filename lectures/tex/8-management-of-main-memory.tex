@@ -89,6 +89,82 @@ If the logical address size is $2^m$ and the page size is $2^m$ addressing units
 Since any free frame can be allocated to a process that needs it, there is no external fragmentation. However, since frames are allocated in units, any time a process does not coincide with a page boundary we get internal fragmentation. For example, given a page-size of 2048 bytes, a process of size 72,766 bytes needs 35 full pages plus 1086 bytes left over. Therefore 36 pages are allocated and 962 bytes are lost to internal fragmentation. The statistical average expense is one have page of internal fragmentation per process. 
 \newline\newline
 A {\bf frame table} is managed by the OS which details frame availability and allocation. Each entry contains the state of the frame and to which page the frame is mapped. The OS will also manage one {\bf page table} per process, meaning paging will add to context switch overhead. 
+\newline\newline 
+A major advantage of paging is the sharing of common code. {\bf Re-entrant} code is non self-modifiying code that is pure code that can be share accross processes. Page sharing can also facilitate and support the {\bf shared memory} IPC concept. Most modern operating systems use hierarchical paging. With a address spaces of sizes $2^24$ the size of the page table can become prohibitively large. This is known as {\bf multi-level} paging. 
+\subsubection{Hardware Support}
+The OS will allocate a page table per procesess, a pointer to which will be stored as part of the process control block. Hardware support is typically in the form of dedicated registers designed to make address translation efficent. Use of {\bf page-table base-registers} is feasible for page tables with small sizes. Essentially, this register contains a pointer to location 0 in the page table of the currently executing process. This value will be loaded from the PCB associated with the process that is currently executing. 
+\newline\newline
+However, for the above approach, we need at least too look ups into memory. Firstly, we need to acquire the page-table base register mapping and secondly we must load the page-table contents into memory. A {\bf translation look aside buffer} is an associative high speed cache used to alleviate look-ups into a page table associated with one or more processes. Figure \cite{page-tlb} illustrates how the TLB acts as as a cache in potentially removing the look-up into the page-table. Note particularly, the difference betwen what happens when there is a cache hit vs. what happens when there is a cache miss.
+\newline\newline
+TLBs of this nature are expensive on-MMU caches, so they are typically limited to between 64 and 1024 entries maximum.
+\begin{figure}
+\caption{Paging assisted by a TLB.{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/page-tlb.png}
+\label{page-tlb}
+\end{center}
+\end{figure}
+\section{Segmentation}
+Segmentation is an alternative memory management scheme that supports the users view of memory by creating a logical address space as a collection of segments of various sizes. Each logical address has a {\bf segment number} and an {\bf offset}. For example, the C compiler creates seperate segments for code, global variables, heap, stacks and the standard C template library. A {\bf segment table} is used to map the one dimentional view of memory to the two dimentional concept of segments. Each segment has an {\bf segment base} and {\bf segment limit} pointer that demarcates the bounds of the segment in memory. Figure \ref{seg} shows in detail how segments relate to logical address space and how the segment table maps each segment to physical memory via offsets into the windows defined by the segment limit and base pointers.
+\begin{figure}
+\caption{Segments as they map to physical memory {OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/segmentation.png}
+\label{seg}
+\end{center}
+\end{figure}
+\section{Virtual Memory}
+The memory management techniques discussed so far require the process to be entirely in memory. Virtual memory allows execution of a process that is not completely in main memory while it is executing. Programs often have code paths that are rarely executed and not often required in main memory. This includes rarely executed exception handling. When programming, the coder often over-provisions array lists and tables, meaning that with pure paging, unused pages of memory can be moved into memory unnecessarily. Even when a program is totally required, the is usually some window of time where all of the program need not be loaded to memory.
+\newline\newline
+There are numerous benfits to virtual memory. Firstly, a program can be much larger than physical memory. Moreover, programmers don't really need to worry too much if their programs are larger than physical memory, or if their arrays are over-provisioned. To some extent, the operating system will help out leaving the programmer to worry about other things. Secondly, virtual memory allows even more processes to run concurrently than pure demand paging or segmentation without virtual memory. Thirdly, and with the caveat that virtual memory is tuned correctly, it reduces in total the I/O of swapping a full process in and out of memory. Virtual memory is complex and difficult to implement and must be effectively managed by both the OS and the user of the system. 
+\newline\newline
+Virtual memory further re-inforces the concept of separtation of logical memory as perceived by users from physical memory. The virtual address space now refers to the logical view of how a process is stored in memory. A breakdown of the virtual address spaces is illustrated in figure \cite{virtmem-log}. The {\bf heap} grows upwards in memory and is used for dynamic memory allocation. The {\bf stack} grows downwards in memory and facilitates successive function calls. There exists a hole between these two which is blank until the stack and or the heap grows into it. Virtual address spaces that include holes are known as sparse address spaces. Figure \cite{virtmem} shows how pages of virtual memory are mapped to physical memory, both main and backing store via a memory map.
+\begin{figure}
+\caption{Logical Virtual Memory{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/virtmem-log.png}
+\label{virtmem-log}
+\end{center}
+\end{figure}
+\begin{figure}
+\caption{A virtual memory system {OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/virtmem.png}
+\label{virtmem}
+\end{center}
+\end{figure}
+\subsection{Demand Paging}
+With demand paging, pages are loaded into memory only as they are needed. Pages that are never accessed are never loaded into physical memory and remain on backing store. This is known as {\bf lazy swapping}. This is similar to a paging system with swapping where processes reside, at least at the page level, in secondary memory. A swapper is disticnt from a pager since a swapper is responsible for swapping entire processes to and from memory. A {\bf pager} is concerned with the swapping of individual pages out of the processes. Figure \cite{demand-paging} illustrates two processes as they exist in main memory, and hows how only segments of each code section are swapped in and out using the demand paging approach. 
+\begin{figure}
+\caption{Demand Paging{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/demand-paging.png}
+\label{demand-paging}
+\end{center}
+\end{figure}
+When a process is to be swapped in, the pager guesses which pages will be used before the process will be swapped out again and these pages are brought into memory. Similar to a cache a {\bf valid bit} can help distinguis between pages that are on the disk or in main memory.  Pages that are in memory are termed {\bf memory resident}. Access to a page that is not in memory causes a {\bf page fault trap} which must be handled. Figure \cite{demand-paging-exmaple} shows a concrete example of values that map from logical memory to physical memory via the page table. 
+\begin{figure}
+\caption{Demand Paging Example {OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/demand-paging-example.png}
+\label{demand-paging-example}
+\end{center}
+\end{figure}
+\subsubsection{Handling a Page Fault}
+In general the page fault interrupt handler is concerned with a number of things. Firstly, the PCB internal table is checked to determine if the address is a valid one for the process in question. If the address is not in the calling processes address space then an error is generated and the process is killed. Otherwise, we need to move the requested page into memory. To do so, the pager needs to find a free frame. Next, it needs to schedule a disk read to read data into the frame. Next, the PCBs internal table and the page table is modified to indicate the page is now in memory. As with all interrupt handlers, the instruction that initiated the trap is restarted.
+\begin{figure}
+\caption{Handling a Page Fault{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.45]{../images/page-fault.png}
+\label{page-fault}
+\end{center}
+\end{figure}
+It is possible, though possibly not desirable, to start a process with zero pages in memory. This causes immediate faulting upon execution and is known as {\bf pure demand paging}. Since page faulting is pure overhead, it is desirable to minimize time spent swapping. We again explit the principle of locality of reference. The worst case scenario of one page fault per instruction is extremely unlikely when we consider this principle. Nevertheless, there are still optimizations that can be leveraged by tuning various parameters around demand paging.
+\subsubsection{Performance}
+Due to the expense of interacting with backing store, demand paging has the potential to have a significant impact on the overall performance of a computer system. The {\bf effective access time} for demand paged memory is our most interesting measure when considering performance. As long as there are no fauls the EAT is equal to the memory access time. If there is a fault, it must be handled via several steps. Our effective access time can be capure by the following expression.
+$Time_{effective_access} = (1 - P) * m_{a} + P * Time_{page_fault}$
+\newline\newline
+The following table illustrates the steps required
 
 
 \bibliography{../biblio/techfundamentals.bib}{}
