@@ -191,19 +191,10 @@ Due to the expense of interacting with backing store, demand paging has the pote
 \label{pfsteps}
 \end{center}
 \end{figure}
-Figure \ref{pfsteps} shows a list of things to be considered when handling a page fault. To service a page fault interrupt one to several hundred instructions of 1 to 100 microseconds is required. To read in the page from disk reads of the order of 8 milliseconds are not uncommon. A typical memory access cycle will complete in the order of microseconds. Restarting the process is also measured in orders of tens of microseconds. The following example shows how effective access time is directly proportional to the paging rate and how a page fault rate of just one in a thousand can decrease the effective access time to $89.56$ percent of optimal with no paging.  
+Figure \ref{pfsteps} shows a list of things to be considered when handling a page fault. To service a page fault interrupt one to several hundred instructions of 1 to 100 microseconds is required. To read in the page from disk reads of the order of 8 milliseconds are not uncommon. A typical memory access cycle will complete in the order of microseconds. Restarting the process is also measured in orders of tens of microseconds.   
 \begin{equation}
 \begin{split}
-&T_{fault} = 8,000,000 \\
-&T_{access} = 200 \\
-&P_{fault} = 1/1000 \\
-\\
-&T_{effective} = (1 - P) * 200 + P * 8,000,000\\
-&T_{effective} = (200) + 7,999,800 * 1/1000 \\
-&T_{effective} = 8.2ms\\
-\end{split}
-\end{equation}
-In the next article we will examine in detail how the JVM manages memory. The concepts of memory allocation, garbage collection and memory management will all be discussed in detail. This will provide a practical grounding to the generic material that has just been discussed.  
+
 
 \bibliography{../biblio/techfundamentals.bib}{}
 \bibliographystyle{plain}

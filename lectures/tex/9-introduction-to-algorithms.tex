@@ -131,9 +131,7 @@ return x
 \label{queue}
 \end{center}
 \end{figure}
-\section{Linked List}
 A linked list is a data structure in which objects are arranged in a linear order that is defined by properties of each {\bf node} in the list. Unlike an array, where this order is determined by proximity, a pointer to the next or previous node in the list at each element is used. In the case of a doubly linked list, pointers to both the predecessor and the sucessor nodes are kept at each node. Otherwise, if the predecessor link is omitted, the list is singly linked. Any linked list must be bound, and this can be done either by inserting $NIL$ explicitly to the predecessor of the first element and sucessor of the last element, or joining the tail and head element by means of pointers. The latter example may be a means to create a {\bf wrapped list} or more commonly {\bf ring buffer}. Linked lists may also be sorted. Figure \cite{linkedlisting} shows some operations on linked list and figure \cite{linkedgraphic} shows linked lists represented diagramatically.
-
 \end{figure}
 \begin{figure}
 \caption{Operations on a Linked list}
@@ -166,16 +164,158 @@ if x.next != NIL
 \end{center}
 \end{figure}
 \section{Linked List}
-begin{figure}
+\begin{figure}
 \caption{A linked and doubly linked list.\cite{OSCONCEPTS}}
 \begin{center}
 \includegraphics[scale=0.5]{../images/linkedlist.png}
 \label{paging}
 \end{center}
 \end{figure}
-\section{Trees}
-We can use reference pointers and logical operations similar to that of linked lists to create rooted trees. The most elementary of these tree structures is a {\bf binary tree}. Each node of a binary tree has a possibly null ancestor and two possibly null children, left and right. This concept can be extended to create rooted trees with unbounded branching. These are known as $k-Ary$ trees, where $k$ may be fixed or totally unbounded.  
+\subsection{Trees}
+We can use reference pointers and logical operations similar to that of linked lists to create rooted trees. The most elementary of these tree structures is a {\bf binary tree}. Each node of a binary tree has a possibly null ancestor and two possibly null children, left and right. This concept can be extended to create rooted trees with unbounded branching. These are known as $k-Ary$ trees, where $k$ may be fixed or totally unbounded. Figure \ref{kary} shows a rooted $k$-Ary tree. We will come back to trees once we have discussed algorithms in more detail.
+\section{Algorithm}
+ \begin{figure}
+\caption{A k-ary tree structure.\cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.5]{../images/kary.png}
+\label{kary}
+\end{center}
+\end{figure}
 
+\section{Introduction to Algorithms}
+An algorithm is any well defined computational procedure that takes some value or set of values as input and produces output. Practically, algorithms are sequences of computational steps that accomplishes this. More loosely, an algorithm is a tool for soliving some well-specified computation problem. A common computational problem that we will look at in detail is that of sorting a sequence of $n$ numbers $a_1,a_2...a_n$ producing $a'_1,a'_2...a'_n$ such that $a_1 <= a_2 <= ... <= a_n$. Each unique input and resulting output is known as an instance of the problem. 
+\newline\newline
+An algorithm is {\bf correct} if for every input instance, it halts with the correct output, thus solving the given computational problem. For this course, we are particularly interested in correct algorithms, however incorrect algorithms are useful if we can control their error rates. 
+\newline\newline
+Algorithms can be found accross multiple disciplines, from interent architectures that efficently route large volumes of data to graphics engines that render scenes in games. Understanding algorithms and their analysis is a fundamental skill that is expected of all programmers. Combining this general understanding with a suite of specific algorithms that are commonly applied in various guises is an extremely valuable addition to your skillset as a programmer. 
+\newline\newline
+Data-structures facilitate access and modification of dynamic sets, and therefore facilitate algorithm execution. None is fit for all purposes, so often the choice of algorithm is tightly coupled with the choice of data-structure used. 
+
+
+<<< SOMETHING ON HARDNESS/SPACE VS TIME HERE >>>>
+
+\subsection{Insertion Sort}
+This is the first sorting implementation we we look at. Remember, the objective is to sort a sequence of $n$ numbers $a_1,a_2...a_n$ producing $a'_1,a'_2...a'_n$ such that $a_1 <= a_2 <= ... <= a_n$. We can refer to these numbers as keys in a data-structure, in this particular case we will choose an array of $n$ elements. Insertion sort is an aefficent algorithm for sorting a small number of elements, and is quite simple to understand. 
+\newline\newline
+Insertion sort works in a similar fashion to the way people normally sort a deck of cards by hand. In other words, we start with an empty left hand, with cards face down. Thereafter, we remove one card at a time from the table and insert it into the correct position of the left hand. Insertion sort will sort the input array {\bf in place} therefore re-arranging the numbers within the input array. There is a good insertion sort animation here \cite{INSANIM}. A fully worked example is shown in figure \ref{insertionlisting}
+\begin{figure}
+\caption{An example insertion sort.\cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.5]{../images/insertion.png}
+\label{insertion}
+\end{center}
+\end{figure}
+\begin{figure}
+\caption{Insertion Sort}
+\begin{center}
+\begin{lstlisting}
+INSERTION-SORT(A)
+for j = 2 to A.length
+  key = A[j]
+  i = j-1
+  while i > 0 and A[i] > key
+    A[i+1]=A[1]
+    i=i-1
+  A[i+1]=key
+\end{lstlisting}
+\label{insertionlisting}
+\end{center}
+\end{figure}
+We can formally examine the listing in \ref{insertionlisting} using a general framework. Firstly, we will define a {\bf loop invariant}. This is a statement of the conditions that should be true on an entry to a loop and are guaranteed to remain true on every further iteration of the loop. That is to say a loop invariant must be true at {\bf initialization}, at {\bf maintenence} and also at {\bf termination}.
+\newline\newline
+For insertion sort, the invariant is defined as $A[1...j-1]$ containing sorted elements, with the remaining elements unsorted. We can see this is true at initialization because we start off with $j=2$ therefore meaning $A[1...j-1]$ has only one element, and is thus implicitly sorted. At maintenence, every time we increment j we ensure that $A[1...j-1]$ will have more elements but that these elements will remain sorted relative to each other. Finally, we terminate at j == A.lenght, thus asserting that we have visited all elements. $A[1...j-1]$ is now equal to $A[1...n]$ and therefore the full array is sorted. 
+\subsection{Analysis of Algorithms}
+Approximating the resources that and algorithm consumes is important. For insertion sort, time taken to complete depends in some way on the input. Intuitively, we can see that sorting 1,000 numbers will take more iterations and therefore more processing time that sorting 3 numbers. Furthermore, insertion sort can take longer to sort two input sequences of the same size depending on how nearly sorted the are. We describe the time taken by an algoirthm to complete as a function of the size of its input $n$. The {\bf running time} of an algorithm on a particular input is therefore directly proportional to the number of steps executed by the algorithm. Assume that each operation takes $c$ time where $c$ is known as a {\bf constant factor}. The running time for the algorithm is the sum of running times for each statement. For insertion sort, we see the best case running time is a linear function captured as $an + b$. Conversely, if the input array is inverse-sorted then running time becomes $an62+bn+c$ which is a quadratic function. 
+\subsubsection{Worst Case Running Time}
+The worst case running time is defined as the upper bound on running time for any input and provides us a guarantee that the algorithm will not take any longer. When considering running times of algorithms where we know nothing about our input set {\it a priori}, this is the quantification we focus on. Worst case occurs often enough for this to be a good rule of thumb. An example operation that is guaranteed to run in worst case time is searching through a list of keys for a value that is not in the list. 
+\subsubsectionh{Best Case Running Time}
+
+\subsubsection{Average Case Running Time}
+When compared to worst case running time, the average case often roughly as bad as the worst case. For insertion sort, if the array is half unsorted then on average we still iterate over half of the sub-array. This is still a quadratic function. 
+\subsubsection{Theta Notation}
+\subsubsection{Big-O Notation} 
+\subsection{Designing Algorithms}
+There are a huge number of ways to design algorithms, but we will talk about two general classes. The first class takes the {\bf incremental} approach, whereby we progress in increments through the steps required. The other class we will consider is the class of algorithms that take the {\bf divide and conquer} approach. These algorithms use the concept of a {\bf recursive structure} to solve the larger problem by solving the set of sub problems contained within the problem itself. At each level of recursion we {\bf divide} the problem into a number of smaller sub-problems, which are instances of the same problem. We conquer the sub-problems by solving them recursively, until the problem size is small enough to either solve incrementally efficently or solve trivially. Thereafter we {\bf combine} the solutions  to the sub-problems into the solution for the original problem. The second approach lends itself well to parallelism, although this is not the only motivating factor in choosing the approach. 
+\newline\newline
+Recursion is the process of repeating in a self similar way. In computer science and in practical terms, recursion is where a procedure or function calls itself, typically with modified parameters from the inital execution. This approach is used typically in dividing problems into sub-problems. The listing in figure \ref{faclisting} illustrates a recursive factorial function. 
+
+\begin{figure}
+\caption{Recursion}
+\begin{center}
+\begin{lstlisting}
+private int factorial{int n} {
+  if (n<=1) 
+    return 1;
+  else 
+    return n * factorial(n-1);
+}
+\end{lstlisting}
+\label{faclisting}
+\end{center}
+\end{figure}
+
+\subsection{Merge Sort}
+Insertion sort is an example of an incremental algorithm. Merge sort takes the divide and conquer approach. First we divide an n-element sequence into sub-sequences of $n/2$ elements each. Next, we sort the two sub-sequences recursively using merge-sort, which itself will cause sub-divides until the size of the sub-divided arrays is 1. The recursion {\bf bottoms out} in this case and we then merge all sorted sub-sequences by unwinding the recursion tree. The solution is the combined set of sorted sub-sets. 
+\begin{figure}
+\caption{Merge-Sort}
+\begin{center}
+\begin{lstlisting}
+MERGE(A, p, q, r)
+# A the array to sort
+# p, q and r are indices into the array sucha that p<=q<r
+# Assuming sub arrays A[p...q] and A[q+1..r] are sorted
+# we merge them to form a single sorted sub-array. 
+N1 = q - p + 1
+N2 = r - q
+let L[1..n1+1] and R[1..n2+1] be new arrays
+for i = 1 to n1
+  L[i]=A[p+1-1]
+for j = 1 to n2
+  R[j]=[A+q+j]
+L[n1+1]=NIL
+R[n2+1]NIL
+i=1
+j=1
+for k = p to r
+if L[i] <= R[j]
+  A[k]=L[i]
+  i=i+1
+else
+  j=j+1
+\end{lstlisting}
+\begin{lstlisting}
+MERGE-SORT(A, p, r)
+if p < r
+  q = [(p+r)/2]
+  MERGE-SORT(A,p,q)
+  MERGE-SORT(A,q+1,r)
+  MERGE(A,p,q,r)
+\end{lstlisting}
+\label{mslisting}
+\end{center}
+\end{figure}
+\begin{figure}
+\caption{Merge Sort\cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.5]{../images/mergesort.png}
+\label{mergesort}
+\end{center}
+\end{figure}
+\end{figure}
+\begin{figure}
+\caption{The full recursion tree of a merge sort example\cite{OSCONCEPTS}}
+\begin{center}
+\includegraphics[scale=0.5]{../images/rmergesort.png}
+\label{rmergesort}
+\end{center}
+\end{figure}
+Figure \ref{mslisting} shows the code required to implement merge sort and figure \ref{mergesort} colors this detail with an example merge operation. Figure \ref{rmergesort} shows the full divide, conquer and merge recursion tree. 
+\subsubsection{Loop Invariant}
+The sub-array A[p..k-1] contains the k-p smallest elements of L[1..n1+1] and R[1..n2+1] in sorted order. L[i] and R[j] are the smalles elements of their arrays that have not been copied back to A. 
+\subsubsection{Initialization}
+Since k=p that makes A[p..k-1] empty. Thus the $k-p$, or 0, smalles elements of L and R are in L and R since i=j=1.
+\subsubsection{Maintenance}
+\subsubsection{Termination}
 
 \bibliography{../biblio/techfundamentals.bib}{}
 \bibliographystyle{plain}
