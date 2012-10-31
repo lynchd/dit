@@ -225,15 +225,31 @@ We can formally examine the listing in \ref{insertionlisting} using a general fr
 \newline\newline
 For insertion sort, the invariant is defined as $A[1...j-1]$ containing sorted elements, with the remaining elements unsorted. We can see this is true at initialization because we start off with $j=2$ therefore meaning $A[1...j-1]$ has only one element, and is thus implicitly sorted. At maintenence, every time we increment j we ensure that $A[1...j-1]$ will have more elements but that these elements will remain sorted relative to each other. Finally, we terminate at j == A.lenght, thus asserting that we have visited all elements. $A[1...j-1]$ is now equal to $A[1...n]$ and therefore the full array is sorted. 
 \subsection{Analysis of Algorithms}
-Approximating the resources that and algorithm consumes is important. For insertion sort, time taken to complete depends in some way on the input. Intuitively, we can see that sorting 1,000 numbers will take more iterations and therefore more processing time that sorting 3 numbers. Furthermore, insertion sort can take longer to sort two input sequences of the same size depending on how nearly sorted the are. We describe the time taken by an algoirthm to complete as a function of the size of its input $n$. The {\bf running time} of an algorithm on a particular input is therefore directly proportional to the number of steps executed by the algorithm. Assume that each operation takes $c$ time where $c$ is known as a {\bf constant factor}. The running time for the algorithm is the sum of running times for each statement. For insertion sort, we see the best case running time is a linear function captured as $an + b$. Conversely, if the input array is inverse-sorted then running time becomes $an62+bn+c$ which is a quadratic function. 
+Approximating the resources that and algorithm consumes is important. For insertion sort, time taken to complete depends in some way on the input. Intuitively, we can see that sorting 1,000 numbers will take more iterations and therefore more processing time that sorting 3 numbers. Furthermore, insertion sort can take longer to sort two input sequences of the same size depending on how nearly sorted the are. We describe the time taken by an algoirthm to complete as a function of the size of its input $n$. The {\bf running time} of an algorithm on a particular input is therefore directly proportional to the number of steps executed by the algorithm. Assume that each operation takes $c$ time where $c$ is known as a {\bf constant factor}. The running time for the algorithm is the sum of running times for each statement. For insertion sort, we see the best case running time is a linear function captured as $an + b$. Conversely, if the input array is inverse-sorted then running time becomes $an62+bn+c$ which is a quadratic function.
+\newline\newline
+We are concerned with the {\bf asympptotic} efficency of algorithms, that is, how the running time of an algorithm increases with the size of the input, as the size of the input increases without bound. The algorithm that is asymptotically more efficent will usually be the best choice for all but very small inputs. Theta notation asymptotically bounds a function from above and below, however, we are usually concerned with only an asymptotic uppder bound. For this we use {\bf O-notation}. Using O-notation, we can often de4scribe the running time of an algorithm merely by inspecting the algorithms overall structure. For example, the doubly nested loop structure of insertion sort immediatedly yeields O(n2) upper bound with each execution of the loop executing in constant time. Theta notation for insertion sort has two figures, i.e. the theta(n2) worst case bound and the theta(n) best case bound. The latter, lower asymptotic bound can be expressed as omega(n) for insertion sort. s
 \subsubsection{Worst Case Running Time}
 The worst case running time is defined as the upper bound on running time for any input and provides us a guarantee that the algorithm will not take any longer. When considering running times of algorithms where we know nothing about our input set {\it a priori}, this is the quantification we focus on. Worst case occurs often enough for this to be a good rule of thumb. An example operation that is guaranteed to run in worst case time is searching through a list of keys for a value that is not in the list. 
 \subsubsectionh{Best Case Running Time}
-
 \subsubsection{Average Case Running Time}
 When compared to worst case running time, the average case often roughly as bad as the worst case. For insertion sort, if the array is half unsorted then on average we still iterate over half of the sub-array. This is still a quadratic function. 
 \subsubsection{Theta Notation}
 \subsubsection{Big-O Notation} 
+
+\subsection{Time Complexity}
+
+O(1) - Constant Time - Hash-Table Array Lookup
+O(logn) - Logarithmioc time - Finding an item in an array using binary search.
+O(n) - Linear Time
+O(n log n) or O(log n!) - Quasi Linear - Merge, Quick and Heap Sort
+O(n2) - Quadratic - Insertion Sort
+O(nc) - Polynomial -
+O(cn) - Exponential - 
+O(n!) - Factorial - Traveling Salesman by brute force search.
+
+\subsection{Space Complexity}
+
+
 \subsection{Designing Algorithms}
 There are a huge number of ways to design algorithms, but we will talk about two general classes. The first class takes the {\bf incremental} approach, whereby we progress in increments through the steps required. The other class we will consider is the class of algorithms that take the {\bf divide and conquer} approach. These algorithms use the concept of a {\bf recursive structure} to solve the larger problem by solving the set of sub problems contained within the problem itself. At each level of recursion we {\bf divide} the problem into a number of smaller sub-problems, which are instances of the same problem. We conquer the sub-problems by solving them recursively, until the problem size is small enough to either solve incrementally efficently or solve trivially. Thereafter we {\bf combine} the solutions  to the sub-problems into the solution for the original problem. The second approach lends itself well to parallelism, although this is not the only motivating factor in choosing the approach. 
 \newline\newline
@@ -315,7 +331,13 @@ The sub-array A[p..k-1] contains the k-p smallest elements of L[1..n1+1] and R[1
 \subsubsection{Initialization}
 Since k=p that makes A[p..k-1] empty. Thus the $k-p$, or 0, smalles elements of L and R are in L and R since i=j=1.
 \subsubsection{Maintenance}
+If L[i]<=R[j] then L[i] is the smalles element not copied back into A. A[p..k01] contains the k-p smalles elements after line 14 copies L[i] into A[k] leaving the sub-array A[p..k] which will conatin the k-p+1 smallest elements. Incrementing k reinitializes the loop invariant for the next iteration. For L[i]>R[j] lines 16 and 17 maintain the loop invariant.
 \subsubsection{Termination}
+At termination k=r+1. The subarray A[p..k-1] which is A[p..r] contains the k-p=r-p+1 smalles elements ofL[1..n1+1] and R[1..n2+1] in sorted order. Land R together contain N1+n2+2=r-p+3 elements. All but the two largest elements have been copied bac into A. These are the two senteniels (which is what exactly?)
+\subsection{Analysis}
+Theta(n) time for the merge procedure. Lines 1-3 and 8-11 take constant time whereas the for loops of lines 4 to 7 take O(n1+n2) time. When algorithms contain recursive calls to itself we describe running time by a recurrence equation. This describes the overall running time on a problem of size n in terms of the running time on smaller inputs. Solving these recurrences can help us put bounds around the performance of the algorithm. For merge-sort we have O(n log n) worst case and average time. Most implementations use a {\stable sort} which does not change the order of equal keys in meory. Mergsort uses O(n) space complexity. 
+\newline\newline\subsection
+Insertion sort runs in O(n) best case time and O(n2) worst and average time. This is reasonably efficent for mall data sets. Since it is an {\bf in-place} sort, the space complexity is O(1). Insertion sort is fully stable. Insertion sort is typically used to sort small arrays. 
 
 \bibliography{../biblio/techfundamentals.bib}{}
 \bibliographystyle{plain}
