@@ -135,12 +135,12 @@ Virtual memory further re-enforces the concept of separation of logical memory a
 \end{center}
 \end{figure}
 \subsection{Demand Paging}
-With demand paging, pages are loaded into memory only as they are needed. Pages that are never accessed are never loaded into physical memory and remain on backing store. This is known as {\bf lazy swapping}. This is similar to a paging system with swapping where processes reside, at least at the page level, in secondary memory. A swapper is disticnt from a pager since a swapper is responsible for swapping entire processes to and from memory. A {\bf pager} is concerned with the swapping of individual pages out of the processes. Figure \cite{demand-paging} illustrates two processes as they exist in main memory, and hows how only segments of each code section are swapped in and out using the demand paging approach. 
+With demand paging, pages are loaded into memory only as they are needed. Pages that are never accessed are never loaded into physical memory and remain on backing store. This is known as {\bf lazy swapping}. This is similar to a paging system with swapping where processes reside, at least at the page level, in secondary memory. A swapper is disticnt from a pager since a swapper is responsible for swapping entire processes to and from memory. A {\bf pager} is concerned with the swapping of individual pages out of the processes. Figure \ref{demandpaging} illustrates two processes as they exist in main memory, and hows how only segments of each code section are swapped in and out using the demand paging approach. 
 \begin{figure}
 \caption{Demand Paging \cite{OSCONCEPTS}}
 \begin{center}
 \includegraphics[scale=0.45]{../images/demand-paging.png}
-\label{demand-paging}
+\label{demandpaging}
 \end{center}
 \end{figure}
 When a process is to be swapped in, the pager guesses which pages will be used before the process will be swapped out again and these pages are brought into memory. Similar to a cache a {\bf valid bit} can help distinguis between pages that are on the disk or in main memory.  Pages that are in memory are termed {\bf memory resident}. Access to a page that is not in memory causes a {\bf page fault trap} which must be handled. Figure \ref{demandex} shows a concrete example of values that map from logical memory to physical memory via the page table. 
@@ -192,8 +192,7 @@ Due to the expense of interacting with backing store, demand paging has the pote
 \end{center}
 \end{figure}
 Figure \ref{pfsteps} shows a list of things to be considered when handling a page fault. To service a page fault interrupt one to several hundred instructions of 1 to 100 microseconds is required. To read in the page from disk reads of the order of 8 milliseconds are not uncommon. A typical memory access cycle will complete in the order of microseconds. Restarting the process is also measured in orders of tens of microseconds.   
-\begin{equation}
-\begin{split}
+
 
 
 \bibliography{../biblio/techfundamentals.bib}{}
