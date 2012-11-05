@@ -27,7 +27,7 @@
   showtabs=false,                 % show tabs within strings adding particular underscores
   frame=none,                   % adds a frame around the code
   rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
-  tabsize=2,                      % sets default tabsize to 2 spaces
+  tabsize=4,                      % sets default tabsize to 2 spaces
   breaklines=true,                % sets automatic line breaking
   breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
   keywordstyle=\color{blue},          % keyword style
@@ -208,7 +208,7 @@ for j = 2 to A.length
   key = A[j]
   i = j-1
   while i > 0 and A[i] > key
-    A[i+1]=A[1]
+    A[i+1]=A[i]
     i=i-1
   A[i+1]=key
 \end{lstlisting}
@@ -281,17 +281,18 @@ let L[1..n1+1] and R[1..n2+1] be new arrays
 for i = 1 to n1
   L[i]=A[p+1-1]
 for j = 1 to n2
-  R[j]=[A+q+j]
+  R[j]=A[q+j]
 L[n1+1]=NIL
-R[n2+1]NIL
+R[n2+1]=NIL
 i=1
 j=1
 for k = p to r
-if L[i] <= R[j]
-  A[k]=L[i]
-  i=i+1
-else
-  j=j+1
+	if L[i] <= R[j]
+  		A[k]=L[i]
+ 		 i=i+1
+	else 
+		A[k]=R[j]
+  		j=j+1
 \end{lstlisting}
 \begin{lstlisting}
 MERGE-SORT(A, p, r)
