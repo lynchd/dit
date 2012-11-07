@@ -42,16 +42,16 @@
 \floatstyle{boxed} 
 \restylefloat{figure}
 \renewcommand*\familydefault{\sfdefault}
-\title{Hash Tables}
+\title{Efficent Retrevial from Data Structures}
 \author{David Lynch - david.lynch@raglansoftware.com }
 \begin{document}
 \maketitle
 \begin{abstract}
-A hash table is an interesting data structure for a number of reasons. Firstly, you'll see them anywhere you might want to maintain a keyed list of anything, as the $O(1)$ nature of the retrieval is very desirable the for applications that refer to keyed list by the key value itself. More interestingly, due to space constraints the this performance may not remain constant for the duration of the existence of the hash table. This makes for a simple example of a data structure that requires work to maintain its key property. 
+In this article, we look at two data-structures that facilitate efficent retrieval given an explict key. This style of data-structure is commonly used in situations where look-up is the desired optimization. For example, maintaining a dictionary of definitions of a particular word, or maintaining a large list of numbers. We consider Hash Tables and Binary Search Trees as two relatively simple structures that facilitate this requirement. 
 \end{abstract}
-\section{Background}
-Many applications require a dynamic that supports only the operations {\it INSERT, SEARCH} and {\it DELETE}. A hash table is an effective data structure for implementing dictionaries. Searching for an element in a hash has an upper bound of \Theta$(n)$ but given reasonable assumptions about the hash table, retrieval can be put at $O(n)$. A hash table generalizes the simpler notion of an array by using direct addressing as a means to implement an explicit key. When the number of keys store is small relative to the number of possible keys, hash tables are an effective alternative to maintaining an complimentary array of direct addresses. Conceptually, the array index is computed from the {\bf key} by applying a {\bf hash function} to the key. When {\bf collisions} occur in a hash table {\bf chaining} is used to resolve the key-pair mapping. 
-\section{Direct Address Tables}
+\section{Hash Tables}
+A hash table is an interesting data structure for a number of reasons. Firstly, you'll see them anywhere you might want to maintain a keyed list of anything, as the $O(1)$ nature of the retrieval is very desirable the for applications that refer to keyed list by the key value itself. More interestingly, due to space constraints the this performance may not remain constant for the duration of the existence of the hash table. This makes for a simple example of a data structure that requires work to maintain its key property.Many applications require a dynamic that supports only the operations {\it INSERT, SEARCH} and {\it DELETE}. A hash table is an effective data structure for implementing dictionaries. Searching for an element in a hash has an upper bound of \Theta$(n)$ but given reasonable assumptions about the hash table, retrieval can be put at $O(n)$. A hash table generalizes the simpler notion of an array by using direct addressing as a means to implement an explicit key. When the number of keys store is small relative to the number of possible keys, hash tables are an effective alternative to maintaining an complimentary array of direct addresses. Conceptually, the array index is computed from the {\bf key} by applying a {\bf hash function} to the key. When {\bf collisions} occur in a hash table {\bf chaining} is used to resolve the key-pair mapping. 
+\subsection{Direct Address Tables}
 When the {\it universe} of possible keys is small, direct-address tables are useful. Each element has a key from the universe $U={0,1...,m-1}$ where $m$ is not too large by some measure and the hash function $h(k)$ enforces the rule that no two elements have the same key. Direct addressing implementation is relatively trivial. Figure \ref{diraddr} illustrates direct addressing. 
 \end{figure}
 \begin{figure}
@@ -70,22 +70,159 @@ If $U$ is sufficiently large, storing a table $T$ of size $|U|$ may be impractic
 \label{hashtable}
 \end{center}
 \end{figure}
-\section{Chaining}
+\subsection{Chaining}
 Given a hash table $T$ with $m$ slots that stores $n$ elements {\bf load factor} for $T$, \Alpha as $n/m$ or the average number of elements stored in a chain. Retrieval performance degrades to that of a linked list, but insertion stays at constant time. The overall average-case performance of a hash table with chaining depends on how well the hash function distributes the set of keys to be stored among the $m$ available slots. If we assume that any given element is equally likely to hash to any of the $m$ slots, independently of where other elements have already hashed, then we assume {\bf simple, uniform hashing}. In a hash table in which collisions are resolved by chaining, an unsuccessful search and a successful search takes average case time $O(n+\Alpha}$
-\section{Hash Functions}
+\subsection{Hash Functions}
 A good hash function satisfies the simple uniform hashing assumption. It is very difficult to implement without {\it a priori} knowledge of the probability distribution of the drawing of keys. In practice we use hueristic techniques to create hash functions that perform well. In this case qualitative information about key distribution may be very useful. A good approach derives the hash value independently of any patterns that might exist in the data. Some applications of hash functions might require stronger properties than are provided by simple uniform hashing. We might get keys that are close to yield hash values that are far apart, or vice versa. Most hash functions assume the universe of keys to be the natural set of numbers N. If keys are not natural numbers we can find a way of interpreting them as such. 
-\subsection{The Division Method}
+\subsubsection{The Division Method}
 A key $k$ is mapped to one of its $m$ slots by taking the remainder of $k$ divided by $m$ so that $h(k) = k mod (m)$. This can be performed in a single division and as such is quite fast. In this approach, the case where $m$ is a power of 2 needs to be avoided since the $p$ lower order bits of $k$
+\subsection{Hash-Maps in Java}
 
-\\ FINISH AND RE_READ THIS \\
+\section{Binary Search Trees}
+The search tree data structure can be used as both a data-structure and a form of priority queue. Operations on binary search trees take time proportional to the height of the tree. For a complete binary tree with $n$ nodes operations run in $O(n log n)$ time, but if the tree is a linear collection of $n$ nodes it is $O(n)$ times. We can capture both cases by generalizing to $O(h)$ running time, where $h$ is the height of the tree. 
+\newline\newline
+A binary search tree is a {\bf binary tree} with some extra properties. Each node in the tree contains a {\bf key}, {\bf satellite data} and attributes {\bf left},{\bf right} and {\bf parent} as pointers to other nodes in the tree. The keys in a binary search tree are always stored in a way that satisfies the {\bf binary search tree property} which is defined as follows.
+\newline\newline
+Let $x$ be a node in a binary search tree. If $y$ is a node in the left sub-tree of $x$, then $y.key <= x.key$. If $y$ is a node in the right sub-tree of $x$, then $y.key>=x.key$.
+\newline\newline
+Figures \ref{bstupright} and \ref{bstfull} illustrate that the order in which keys are inserted into the BST influences its structure. 
 
-\section{Hash-Maps in Java}
+\begin{figure}
+\caption{Upright form of the BST tree for {2,5,5,6,7,8} $h=5$ }
+\begin{center}
+\includegraphics[scale=0.43]{../images/bstupright.png}
+\label{bstupright}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\caption{Full form of the BST tree for {2,5,5,6,7,8} $h=3$}
+\begin{center}
+\includegraphics[scale=0.43]{../images/bstfull.png}
+\label{bstfull}
+\end{center}
+\end{figure}
 
 
-\section{Further Reading}
+\begin{figure}
+\caption{Tree Walking and Search}
+\begin{center}
+\begin{lstlisting}
+INORDER-TREE-WALK(x)
+if x != NIL
+  INORDER-TREE-WALK(x.left)
+  print x.key
+  INORDER-TREE-WALK(x.right)
+\end{lstlisting}
 
-http://tools.ietf.org/html/rfc1321 [MD5]
-http://en.wikipedia.org/wiki/Bloom_filter [Bloom Filter]
+\begin{lstlisting}
+TREE-SEARCH(x, k)
+if x==NIL or k==x.key
+  return x
+if k<x.key
+  return TREE-SEARCH(x.left, k)
+else
+  return TREE-SEARCH(x.right, k)
+\end{lstlisting}
+
+
+\begin{lstlisting}
+ITERATIVE-TREE-SEARCH(x, k)
+while x.left!=NIL and k!=x.key
+  if k<x.key
+     x=x.left
+  else  
+     x=x.right
+return x
+\end{lstlisting}
+\label{walkandsearch}
+\end{center}
+\end{figure}
+
+
+\subsection{Tree Traversal}
+The BST property allows printing of all keys in a binary search tree in {\bf sorted} order by walking {\bf in-order}. In order traversal means first printing the key of the root between printing the values in the left sub-tree and those in the right sub tree. {\bf Pre-order} traversal is when the root is printed before values in either sub-tree. Lastly, {\bf post order} traversal prints the root after the values in each of the sub-trees. An in-order tree walk takes $O(n)$ time since after the initial call the procedure calles itself exactly twice, or once for each node. 
+\newline\newline
+Figure \ref{walkandsearch} shows an inorder walk, and two forms of tree search, one recursive and one iterative. We can see that the binary search tree property not only enables retrieval in $O(h)$ time but facilitates us in finding particularly elegant operation implementations. 
+
+\begin{figure}
+\caption{Queue operations in pseudo-code}
+\begin{center}
+\begin{lstlisting}
+TREE-MINIMUM(x)
+while x.left != NIL
+  x = x.left
+return x
+\end{lstlisting}
+
+\begin{lstlisting}
+TREE-MAXIMUM(x)
+wile x.right != nil
+  x = x.right
+return x
+\end{lstlisting}
+
+\begin{lstlisting}
+TREE-SUCCESSOR(x)
+if x.right == NIL
+  return TREE-MINIMUM(x.right)
+y = x.parent
+whie y!=NIL and x==y.right
+x = y
+y = y.parent
+return y
+\end{lstlisting}
+\label{walkandsearch}
+\end{center}
+\end{figure}
+
+\subsection{Tree Modification}
+
+
+\begin{figure}
+\caption{Queue operations in pseudo-code}
+\begin{center}
+\begin{lstlisting}
+TREE-INSERT(T,x)
+y=NIL
+x = T.root
+while x != NIL
+  y=x
+  if z.key < x.key
+    x=x.left
+  else 
+    x=x.right
+x.p = y
+if y==NIL
+  root=z 
+elsif z.key<y.key
+  left=z
+else 
+  y.right=z
+\end{lstlisting}
+
+\begin{lstlisting}
+TREE-MAXIMUM(x)
+wile x.right != nil
+  x = x.right
+return x
+\end{lstlisting}
+
+\begin{lstlisting}
+TREE-SUCCESSOR(x)
+if x.right == NIL
+  return TREE-MINIMUM(x.right)
+y = x.parent
+whie y!=NIL and x==y.right
+x = y
+y = y.parent
+return y
+\end{lstlisting}
+\label{walkandsearch}
+\end{center}
+\end{figure}
+
+
 
 \bibliography{../biblio/techfundamentals.bib}{}
 \bibliographystyle{plain}
