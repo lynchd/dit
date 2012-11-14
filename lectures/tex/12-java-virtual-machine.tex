@@ -1,0 +1,103 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{color}
+ 
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{ %
+  language=Octave,                % the language of the code
+  basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+                                  % will be numbered
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=true,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=none,                   % adds a frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=4,                      % sets default tabsize to 2 spaces
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  keywordstyle=\color{blue},          % keyword style
+  commentstyle=\color{dkgreen},       % comment style
+  stringstyle=\color{mauve},         % string literal style
+  escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+  morekeywords={*,...}               % if you want to add more keywords to the set
+}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\floatstyle{boxed} 
+\restylefloat{figure}
+\renewcommand*\familydefault{\sfdefault}
+\title{Byte Code, the JVM and the JVM Memory Model}
+\author{David Lynch - david.lynch@raglansoftware.com }
+\begin{document}
+\maketitle
+\begin{abstract}
+This article will focus on a detailed discussion of the Oracle Hot-Spot JVM. The JVM is really a specification, a concrete implementation and a runtime environment for program execution. We will consider it here mostly as a concrete implementation and runtime environment for your programs. You should endeavour to bring everything you have learned about operating systems, memory management and data-structures to the table when studying this article. 
+\end{abstract}
+
+\section{Overview}
+We will consider the JVM as a virtual-machine environment on which Java byte-code can be executed. The JVM itself runs on many platforms natively, therefore facilitating portablity of both Java code and code of other languages that compile to the JVM. Ruby via JRuby is an example of another language that compiles to run on the JVM. The Java Virtual Machine is responsible for {\bf class loading}, {\bf interpretation} and {\bf execution} of {\bf byte code}. Also, the JVM is responsible for the automated management of main memory within your running process. This sub-system is formally known as the garbage collector and is the reason you no longer have to worry about things like alloc() without dealloc(). However, that is not to say you can completely ignore memory issues in Java. In fact, for any production system, it is essential you understand how to leverage features of the JVM correctly. 
+\subsection{The Java Platform}
+The Java Platform itself is divided into a number of sub components. For marketing purposes, Sun (now Oracle) has grouped these functions into categories. Firstly, we have the JRE, or {\bf Java Runtime Environment}. This provides a virtual machine for execution, a set of standarized class libraries and is intended for running standard applications. The JDK, or {\bf java development kit} is a superset of the JRE which is intended specifically for development and includes build and release support tools. The classes are further divided into JSE or {\bf java standard edition} and {\bf java enterprise edition}. The latter adds some extra libraries that are designed to facilitate multi-tier distributed applications. Figure \ref{jse} shows the standard edition break down. We'll look at the enterprise edition more closely in another course. 
+\newline\newline
+The first layer is the java language itself, which sits above several tools that are used to compile, run and deploy the java application. Next, we see user interface toolkits which can be used for creating rich interfaces. There are some sever specific technologies, such as JDBC, which is used for database connectivity. The bottom layer is the java hot-spot compiler, which is repsonsible for the generation of byte-code. 
+\subsection{Byte-Code}
+The java compiler will take Java source files and compile them to java byte code files. These are denoted with the {\it .class} extension. In practice, this byte code is analagous to Assembler for C. Each method is compiled into a {\it bytecode stream}. Each operation is a one-byte {\bf op-code} followed by zero or more {\bf operands}. Computation on the JVM is {\bf stack} centered and models a {\bf stack machine}. This leave the byte code quite compact and simple to understand, and contrasts the approach whereby multiple registers are used to store data. Since the JVM does not model an internal register set, evertying is pushed onto the stack before it is used. For example, a simple multiplication will involve two operands pushed onto the stack. Next, each operand will be sucessively popped from the stack and the result pushed back onto the stack afer execution. 
+\newline\newline
+Each byte code instruction is translated continously into native machine code during the execution of a program. In this regard, the Java language is {\bf interpreted}. In practice, the JVM uses an optimization called {\bf just-in-time compliation} which compiles byte-code into native code on the fly. Rather than compiling the full application natively, as with {\bf static compilation}, we wait until the first execution step of the code itself. We then compile to native. This incurs a cost at first run-time, however, the JVM's hot-spot technology will ensure that frequently executed code gets compiled to native code the minimum number of necessary times. 
+\newline\newline
+Primitives supported by the JVM are byte, short, int, long, float and double. The actual opcodes indicated their types, so for example {\it Iload} causes an int to be loaded. Opcodes can also contain operands, for example iconst_1 pushes the constant value 1 onto the stack. Each slot on the Java stack is 32-bits wide, so Long and Double each occupy two slots. Some useful operations are tabulated in figure \ref{byte-code}.
+
+\\ BYTE CODE TABULAR
+Load/Store - aload_0 istore
+Arithmetic and Logic - ladd fcmpl
+Type Conversion - I2b d21
+Object Creation - new putfield
+Operand Stack Management - swap dup2
+Transfer of Control - ifeq goto
+Method Invocation - invokespecial areturn
+
+\\ JAVA TO BYTE CODE EXAMPLE 
+
+\section{JVM Memory Management}
+Garbage Collection is the process of recognizing wheren allocated objects are no longer needed and de-allocating the memory accordingly. Some programming languages leave memory management in its entirity to the programmer. In reality this is boiler plate code, and unnecessary. When careful patterns are not followed, we can end up with dangerous and difficult to debug problems that are not always failures. 
+\newlinew\newline
+A dangling reference is left when space is reallocated event though there is an existing reference. The results of this are quite unpredictable. Space leaks occur when memory is allocated, but no longer needed and not released. For example, deallocation of the first refernece of a linked list can leave the remainder of the list allocated. Luckily, the JVM garbage collector does a great job of automatically collecting garbage and, for the most part, avoiding these scenarios completely. 
+\subsection{Garbage Collector}
+The garbage collector in java is responsible for the allocation of memory. It ensures referenced objects are not de-allocated and recovers memory from objects that are no longer reachable from the references in executable code. Objects that are referenced are still {\bf live} while those that are not are {\bf dead} and known affectionately as {\bf garbage}. 
+\newline\newline
+Garbage collection is not a silver bullet that allows you to completely forget about memory managment. Also, it can be quite complext and use significant resources. Even with garbage collection fully enabled and tuned it is still possible to unintentionally exhaust memory. 
+\newline\newline
+The pool of memory from which space is deallocated is known as the {\bf heap}. Garbage collection timings are up to the garbage collector itself. We can also programatically schedule (not execute) a garbage collection using the {\it System.gc()} method call. Unless you {\it really} know what you are doing, there should be no reaosn for you to call this explicity in code. 
+\newline\newline
+An allocation request involves finding osme unused emory of a certain size in the heap and allocating it. If you remember back to the article on general memory management by operating systems, we know that this can be a complex task due to {\bf fragmentation}. Furthermore, safety and comprehensiveness are of primary importance. The GC must never erroneously free live data nor should it leave claimable memory unclaimed for more than a small number of GCS. Lastly, we desire an efficent GC that does not greatly impact the running time of the application. Therefore, as with most algorithms, we have an engineering problem. In this case, we have {\bf time},{\bf space} and {\bf frequency} trade-offs to-consider. 
+\subsubsection{Serial Collection}
+
+\subsubsection{Parallel Collection}
+This is the alternative approach which splits garbage collection into parts and sub-parts that are executed concurrently. This can be done more quickly but the trade off is complexity and fragmentation. 
+
+\subsubsection{Stop-The-World}
+This flavour of collection causes the currently executing program to pause until a garbage collection is complete. This may be desirable in certain circumstances, and is quite simple to implement compared to the alternative. This is mainly due to the fact the heap is not mutating during the collection. However, in systems optimized for responsiveness, particularly those with soft-realtime constraints, pausing like this can be detrimental to the correct function of the application. This is particularly true where we have heaps of the order of gigabytes in time which, under certain conditions, can take an order of seconds to garbage collect. 
+
+\subsubsection{Concurrent}
+Concurrent garbage collection occurs in tandem with the executing application. Complexity here sis much increased due to the constantly mutating heap, and this adds some overhead. Concurrently collected heaps may suffer under load, since the garbage collection may pause due to the collection being switched out. Therefore, this kind of collection may take significantly longer to reclaim the same memory as the previous approach. 
+
+
+{\small \copyright  David Lynch 2012. Do not reproduce without written permission.}
+\end{center}
+\end{document}
